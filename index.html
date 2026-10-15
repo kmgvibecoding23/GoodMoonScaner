@@ -1,0 +1,920 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>GMS — GoodMoodScaner · Досуг в Павлодаре</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%8C%9E%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Unbounded:wght@500;700;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<style>
+:root{
+  --sun:#FFC93C;--coral:#FF7A59;--mint:#3DDC97;--sky:#5BC0EB;
+  --bg:#FFF9F0;--ink:#2E2A3B;--muted:#6B6478;--card:#FFFFFF;--line:#F1E3CC;--soft:#FFF1D6;--soft2:#E9F8F1;
+  --shadow:0 10px 30px -12px rgba(255,122,89,.35);
+  --display:'Unbounded','Nunito',system-ui,sans-serif;
+  --body:'Nunito','Segoe UI',system-ui,-apple-system,sans-serif;
+  color-scheme:light;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){--bg:#1E1A27;--ink:#F7EFE4;--muted:#B9AEC6;--card:#292335;--line:#3B3349;--soft:#33293A;--soft2:#203530;--shadow:0 10px 30px -14px rgba(0,0,0,.6);color-scheme:dark}
+}
+:root[data-theme="dark"]{--bg:#1E1A27;--ink:#F7EFE4;--muted:#B9AEC6;--card:#292335;--line:#3B3349;--soft:#33293A;--soft2:#203530;--shadow:0 10px 30px -14px rgba(0,0,0,.6);color-scheme:dark}
+*,*::before,*::after{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:calc(env(safe-area-inset-top,0px) + 76px)}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font-size:17px;line-height:1.55}
+img,svg{max-width:100%}
+a{color:inherit}
+button,input,select{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--sky);outline-offset:2px;border-radius:10px}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+.wrap{max-width:1180px;margin:0 auto;padding:0 20px}
+h1,h2,h3,h4{font-family:var(--display);line-height:1.15;margin:0}
+h2{font-size:clamp(1.6rem,3.2vw,2.3rem);font-weight:700;letter-spacing:-.01em}
+.sub{color:var(--muted);max-width:62ch;margin:.6rem 0 0}
+section{padding:72px 0}
+
+/* header */
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:60;background:var(--bg)}
+header.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:50;background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.top .wrap{display:flex;align-items:center;gap:18px;height:68px}
+.brand{display:flex;align-items:center;gap:10px;text-decoration:none}
+.brand b{font-family:var(--display);font-weight:900;font-size:1.35rem;letter-spacing:.02em}
+.brand b i{font-style:normal;color:var(--coral)}
+.brand small{display:block;font-size:.7rem;color:var(--muted);font-weight:700;margin-top:-3px}
+nav.main{display:flex;gap:4px;margin-left:auto;flex-wrap:nowrap;overflow-x:auto}
+nav.main a{text-decoration:none;font-weight:700;padding:8px 12px;border-radius:999px;font-size:.95rem;white-space:nowrap}
+nav.main a:hover{background:var(--soft)}
+.tools{display:flex;gap:8px;align-items:center}
+.seg{display:flex;background:var(--soft);border-radius:999px;padding:3px}
+.seg button{border:0;background:none;padding:6px 10px;border-radius:999px;font-weight:800;font-size:.8rem;cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--card);box-shadow:0 2px 8px rgba(0,0,0,.08)}
+.iconbtn{border:0;background:var(--soft);width:38px;height:38px;border-radius:50%;cursor:pointer;font-size:1.05rem}
+@media (max-width:900px){nav.main{display:none}}
+
+/* hero */
+.hero{padding:44px 0 64px;position:relative;overflow:hidden}
+.hero::before{content:"";position:absolute;width:720px;height:720px;right:-260px;top:-300px;border-radius:50%;background:radial-gradient(circle,color-mix(in srgb,var(--sun) 55%,transparent),transparent 65%);pointer-events:none}
+.hero-grid{display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr);gap:40px;align-items:start;position:relative}
+@media (max-width:960px){.hero-grid{grid-template-columns:1fr}}
+.hero h1{font-size:clamp(2.2rem,5.4vw,4.1rem);font-weight:900;letter-spacing:-.025em;line-height:1.02}
+.hero h1 .city{display:block;font-weight:500;font-size:.42em;letter-spacing:0;margin-top:.7em;color:var(--muted)}
+.hero .sub{font-size:1.1rem}
+.sunmark{width:min(260px,60vw);margin:34px 0 0}
+.sunmark .rays{transform-origin:100px 100px;animation:spin 40s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+@media (max-width:960px){.sunmark{display:none}}
+
+.panel{background:var(--card);border-radius:28px;padding:26px;box-shadow:var(--shadow);border:1px solid var(--line)}
+.step+.step{margin-top:22px;padding-top:22px;border-top:1px dashed var(--line)}
+.step h3{font-size:1.05rem;font-weight:700;display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.step h3 .n{width:30px;height:30px;border-radius:50%;background:var(--sun);color:#2E2A3B;display:grid;place-items:center;font-size:.9rem;flex:none}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.chip{border:2px solid var(--line);background:var(--card);border-radius:999px;padding:7px 14px;font-weight:700;cursor:pointer;font-size:.93rem;display:inline-flex;align-items:center;gap:6px;transition:background .15s,border-color .15s}
+.chip:hover{border-color:var(--sun)}
+.chip[aria-pressed="true"]{background:var(--sun);border-color:var(--sun);color:#2E2A3B}
+.chip:disabled{opacity:.4;cursor:not-allowed}
+.chip .cnt{font-size:.75rem;background:var(--soft);border-radius:999px;padding:0 7px;color:var(--muted)}
+.chip[aria-pressed="true"] .cnt{background:rgba(255,255,255,.6);color:#2E2A3B}
+input[type=date],input[type=number],input[type=text],input[type=tel],select{border:2px solid var(--line);background:var(--card);border-radius:14px;padding:8px 12px;min-height:42px}
+.wx{font-weight:700;font-size:.9rem;color:var(--muted);padding:6px 12px;background:var(--soft2);border-radius:999px}
+.fmts{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+@media (max-width:560px){.fmts{grid-template-columns:repeat(2,1fr)}}
+.fmt{border:2px solid var(--line);background:var(--card);border-radius:20px;padding:14px 8px;cursor:pointer;text-align:center;font-weight:800;font-size:.9rem;line-height:1.2}
+.fmt span{display:block;font-size:1.9rem;margin-bottom:6px}
+.fmt[aria-pressed="true"]{border-color:var(--coral);background:color-mix(in srgb,var(--coral) 12%,var(--card))}
+.extra{display:flex;flex-wrap:wrap;gap:14px;margin-top:12px}
+.extra label{display:flex;flex-direction:column;font-size:.82rem;font-weight:700;color:var(--muted);gap:4px}
+.extra input{width:110px}
+.hint{color:var(--muted);font-size:.95rem;margin:0}
+details.filters{margin-top:20px;border-radius:18px;background:var(--soft);padding:12px 16px}
+details.filters summary{cursor:pointer;font-weight:800}
+.fgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px;margin-top:14px}
+.fgrid label{display:flex;flex-direction:column;gap:4px;font-weight:700;font-size:.85rem;color:var(--muted)}
+.fgrid .check{flex-direction:row;align-items:center;gap:8px;color:var(--ink)}
+.scan{position:relative;overflow:hidden;width:100%;margin-top:22px;border:0;border-radius:20px;padding:18px;font-family:var(--display);font-weight:700;font-size:1.1rem;cursor:pointer;color:#2E2A3B;background:linear-gradient(100deg,var(--sun),var(--coral));box-shadow:0 12px 26px -10px rgba(255,122,89,.7)}
+.scan:hover{filter:saturate(1.15)}
+.scan.busy::after{content:"";position:absolute;top:0;bottom:0;width:40%;left:-40%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.75),transparent);animation:sweep .9s ease-in-out infinite}
+@keyframes sweep{to{left:100%}}
+
+/* results */
+#results{display:none;padding-top:24px}
+#results.show{display:block}
+.res-head{display:flex;flex-wrap:wrap;justify-content:space-between;gap:16px;align-items:end;margin-bottom:22px}
+.res-head h2 small{display:block;font-family:var(--body);font-size:1rem;font-weight:700;color:var(--muted);margin-top:8px;letter-spacing:0}
+.vtabs{display:flex;gap:6px}
+.res-grid{display:grid;grid-template-columns:minmax(0,1fr) 320px;gap:28px;align-items:start}
+@media (max-width:960px){.res-grid{grid-template-columns:1fr}}
+ol.timeline{list-style:none;margin:0;padding:0;position:relative}
+ol.timeline::before{content:"";position:absolute;left:94px;top:10px;bottom:10px;width:3px;background:repeating-linear-gradient(var(--line) 0 8px,transparent 8px 14px)}
+.tl-item{display:grid;grid-template-columns:80px 1fr;gap:34px;padding-bottom:22px;position:relative}
+.tl-item::before{content:"";position:absolute;left:87px;top:12px;width:17px;height:17px;border-radius:50%;background:var(--c);border:3px solid var(--bg)}
+.tl-time{text-align:right;padding-top:4px}
+.tl-time b{font-family:var(--display);font-size:1.45rem;display:block;line-height:1}
+.tl-time span{color:var(--muted);font-weight:700;font-size:.9rem}
+.tl-body{background:var(--card);border-radius:22px;padding:18px 20px;border:1px solid var(--line);border-left:6px solid var(--c)}
+.tl-travel{font-size:.85rem;color:var(--muted);font-weight:700;margin:-4px 0 6px}
+.tl-body h4{font-size:1.08rem;font-weight:700}
+.tl-place{margin:.25rem 0 0;color:var(--muted);font-weight:700;font-size:.92rem}
+.tl-desc{margin:.45rem 0 0;font-size:.97rem}
+.tl-meta{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:12px}
+.price{font-weight:900;font-size:1.05rem}
+.badge{font-size:.75rem;font-weight:800;padding:3px 10px;border-radius:999px;background:var(--soft2)}
+.badge.partner{background:color-mix(in srgb,var(--sky) 22%,var(--card))}
+.tl-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.btn{border:0;border-radius:14px;padding:9px 16px;font-weight:800;cursor:pointer;background:var(--soft);text-decoration:none;display:inline-flex;align-items:center;gap:6px;font-size:.93rem}
+.btn:hover{filter:brightness(.97)}
+.btn.primary{background:var(--coral);color:#fff}
+.btn.mint{background:var(--mint);color:#16352a}
+@media (max-width:560px){ol.timeline::before{left:62px}.tl-item{grid-template-columns:52px 1fr;gap:26px}.tl-item::before{left:55px}.tl-time b{font-size:1.05rem}}
+.summary{position:sticky;top:calc(env(safe-area-inset-top,0px) + 86px);background:var(--card);border-radius:24px;padding:22px;border:1px solid var(--line)}
+.summary .tot{font-family:var(--display);font-size:2rem;font-weight:900;margin:.2rem 0}
+.summary .bud{font-weight:700;font-size:.9rem}
+.summary .bud.ok{color:#1f9a63}.summary .bud.over{color:var(--coral)}
+.summary .acts{display:grid;gap:8px;margin-top:16px}
+.summary .acts .btn{justify-content:center}
+.sharebar{display:flex;gap:8px;margin-top:6px}
+.sharebar .btn{flex:1;justify-content:center;padding:9px 6px;font-size:.85rem}
+.pl{margin-top:16px;border-radius:18px;padding:14px;background:var(--soft2);font-size:.92rem}
+.pl b{display:block;margin-bottom:6px}
+.pl .row a{font-size:.82rem}
+.empty{background:var(--card);border:2px dashed var(--line);border-radius:24px;padding:30px;text-align:center;font-weight:700}
+
+/* map */
+#map{height:520px;border-radius:28px;overflow:hidden;border:1px solid var(--line);margin-top:20px;z-index:1}
+.map-tools{display:flex;flex-wrap:wrap;gap:8px;margin-top:20px;align-items:center}
+.pin{width:34px;height:34px;border-radius:50% 50% 50% 4px;transform:rotate(-45deg);background:var(--c);display:grid;place-items:center;box-shadow:0 4px 10px rgba(0,0,0,.25);border:2px solid #fff}
+.pin>span{transform:rotate(45deg);font-size:16px}
+.num{width:30px;height:30px;border-radius:50%;background:var(--coral);color:#fff;font-weight:900;display:grid;place-items:center;border:3px solid #fff;box-shadow:0 4px 10px rgba(0,0,0,.3);font-family:var(--body)}
+.leaflet-popup-content{font-family:var(--body);font-size:14px}
+.pop b{font-size:15px}
+.pop p{margin:4px 0}
+
+/* events */
+.events{display:flex;gap:16px;overflow-x:auto;padding:22px 2px 10px;scroll-snap-type:x mandatory}
+.ev{flex:0 0 260px;scroll-snap-align:start;background:var(--card);border-radius:24px;padding:18px;border:1px solid var(--line);display:flex;flex-direction:column;gap:6px}
+.ev .when{font-weight:900;color:var(--coral);font-size:.9rem}
+.ev h4{font-size:1rem;font-weight:700}
+.ev p{margin:0;color:var(--muted);font-size:.9rem;font-weight:700}
+.ev .btn{margin-top:auto;align-self:flex-start}
+.ev .em{font-size:2rem}
+
+/* music */
+.music{background:linear-gradient(160deg,color-mix(in srgb,var(--sky) 20%,var(--bg)),var(--bg))}
+.mgrid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:28px;margin-top:26px}
+@media (max-width:860px){.mgrid{grid-template-columns:1fr}}
+.moods{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.mood{border:2px solid var(--line);background:var(--card);border-radius:20px;padding:16px 10px;font-weight:800;cursor:pointer;text-align:center}
+.mood span{display:block;font-size:1.8rem}
+.mood[aria-pressed="true"]{border-color:var(--sky);background:color-mix(in srgb,var(--sky) 18%,var(--card))}
+.lbl{font-weight:800;margin:0 0 10px;color:var(--muted);font-size:.9rem}
+.player{background:var(--card);border-radius:28px;padding:26px;border:1px solid var(--line);display:flex;flex-direction:column;gap:12px}
+.player .disc{width:110px;height:110px;border-radius:50%;background:conic-gradient(var(--sun),var(--coral),var(--sky),var(--mint),var(--sun));display:grid;place-items:center}
+.player .disc::after{content:"";width:28px;height:28px;border-radius:50%;background:var(--card)}
+.player.playing .disc{animation:spin 6s linear infinite}
+.player h3{font-size:1.3rem}
+.player p{margin:0;color:var(--muted)}
+
+/* recipes */
+.rgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:18px;margin-top:22px}
+.rc{background:var(--card);border-radius:24px;border:1px solid var(--line);overflow:hidden;cursor:pointer;text-align:left;padding:0;display:flex;flex-direction:column}
+.rc .pic{height:120px;display:grid;place-items:center;font-size:3.6rem;background:var(--soft)}
+.rc .in{padding:16px}
+.rc h4{font-size:1rem;font-weight:700}
+.rc .meta{display:flex;gap:12px;color:var(--muted);font-weight:700;font-size:.85rem;margin-top:8px}
+.stars{color:#F5A500;font-weight:900}
+
+/* partners */
+.partners .box{background:var(--ink);color:var(--bg);border-radius:32px;padding:40px;display:grid;grid-template-columns:1.4fr 1fr;gap:24px;align-items:center}
+.partners .box p{color:color-mix(in srgb,var(--bg) 75%,transparent);margin:.8rem 0 0}
+@media (max-width:760px){.partners .box{grid-template-columns:1fr}}
+footer{padding:36px 0 120px;color:var(--muted);font-size:.9rem;border-top:1px solid var(--line)}
+footer .wrap{display:flex;flex-wrap:wrap;gap:16px;justify-content:space-between}
+
+/* modal */
+.modal{position:fixed;inset:0;z-index:100;display:none;place-items:center;background:rgba(30,26,39,.55);padding:16px}
+.modal.open{display:grid}
+.mbox{background:var(--card);border-radius:28px;max-width:560px;width:100%;max-height:88vh;overflow:auto;padding:26px;position:relative}
+.mbox h3{font-size:1.25rem;margin-bottom:10px;padding-right:40px}
+.mbox .x{position:absolute;top:16px;right:16px}
+.form{display:grid;gap:12px;margin-top:14px}
+.form label{display:flex;flex-direction:column;gap:4px;font-weight:700;font-size:.88rem;color:var(--muted)}
+.pays{display:grid;gap:8px}
+.pays label{flex-direction:row;align-items:center;gap:10px;border:2px solid var(--line);border-radius:14px;padding:10px 12px;color:var(--ink);cursor:pointer}
+.okbox{text-align:center;padding:10px 0}
+.okbox .big{font-size:3rem}
+.okbox code{font-family:var(--display);font-size:1.4rem;background:var(--soft);padding:6px 14px;border-radius:12px;display:inline-block;margin:8px 0}
+.ing{padding-left:18px}.ing li{margin:4px 0}
+.steps li{margin:6px 0}
+.srv{display:flex;align-items:center;gap:10px;margin:10px 0}
+.srv button{width:34px;height:34px;border-radius:50%;border:0;background:var(--soft);font-weight:900;cursor:pointer}
+
+/* chat */
+.fab{position:fixed;right:20px;bottom:calc(20px + env(safe-area-inset-bottom,0px));z-index:90;border:0;border-radius:999px;padding:14px 20px;font-weight:900;cursor:pointer;background:var(--ink);color:var(--bg);box-shadow:0 12px 28px -8px rgba(0,0,0,.45);display:flex;gap:8px;align-items:center}
+.chat{position:fixed;right:20px;bottom:calc(86px + env(safe-area-inset-bottom,0px));z-index:95;width:min(390px,calc(100vw - 32px));height:min(560px,70vh);background:var(--card);border-radius:26px;border:1px solid var(--line);box-shadow:0 24px 60px -20px rgba(0,0,0,.45);display:none;flex-direction:column;overflow:hidden}
+.chat.open{display:flex}
+.chat header{padding:14px 18px;background:linear-gradient(100deg,var(--sun),var(--coral));color:#2E2A3B;font-weight:900;display:flex;justify-content:space-between;align-items:center}
+.chat header button{border:0;background:rgba(255,255,255,.5);border-radius:50%;width:30px;height:30px;cursor:pointer}
+.msgs{flex:1;overflow:auto;padding:14px;display:flex;flex-direction:column;gap:10px}
+.msg{max-width:88%;padding:10px 14px;border-radius:18px;font-size:.95rem;white-space:pre-line}
+.msg.bot{background:var(--soft);border-bottom-left-radius:6px}
+.msg.me{background:var(--coral);color:#fff;align-self:flex-end;border-bottom-right-radius:6px}
+.quick{display:flex;gap:6px;overflow-x:auto;padding:0 14px 8px}
+.quick .chip{font-size:.8rem;padding:5px 10px;white-space:nowrap}
+.chat form{display:flex;gap:6px;padding:10px;border-top:1px solid var(--line)}
+.chat form input{flex:1;min-width:0}
+.chat form button{border:0;border-radius:12px;padding:0 14px;font-weight:900;cursor:pointer;background:var(--coral);color:#fff}
+.chat form .mic{background:var(--soft);color:var(--ink)}
+.toast{position:fixed;left:50%;bottom:calc(28px + env(safe-area-inset-bottom,0px));transform:translateX(-50%) translateY(200%);opacity:0;visibility:hidden;background:var(--ink);color:var(--bg);padding:12px 20px;border-radius:999px;font-weight:800;z-index:200;transition:transform .25s;max-width:90vw;text-align:center}
+.toast.show{transform:translateX(-50%) translateY(0);opacity:1;visibility:visible}
+@media print{
+  header.top,.hero,#mapSec,#events,#music,#recipes,.partners,footer,.fab,.chat,.tl-actions,.summary .acts,.vtabs,.pl{display:none!important}
+  body{background:#fff;color:#000}
+  #results{display:block!important}
+  .res-grid{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="#top" aria-label="GMS — GoodMoodScaner">
+      <svg width="40" height="44" viewBox="40 8 124 164" aria-hidden="true">
+        <defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FFC93C"/><stop offset="1" stop-color="#FF7A59"/></linearGradient></defs>
+        <path d="M102 168C102 168 42 110 42 74A60 60 0 0 1 162 74C162 110 102 168 102 168Z" fill="url(#lg)"/>
+        <circle cx="102" cy="74" r="36" fill="#FFF9F0"/><circle cx="102" cy="74" r="20" fill="#FFC93C"/>
+        <circle cx="94" cy="70" r="3" fill="#2E2A3B"/><circle cx="110" cy="70" r="3" fill="#2E2A3B"/>
+        <path d="M92 78Q102 88 112 78" fill="none" stroke="#2E2A3B" stroke-width="3" stroke-linecap="round"/>
+      </svg>
+      <span><b>G<i>M</i>S</b><small>GoodMoodScaner</small></span>
+    </a>
+    <nav class="main" aria-label="Разделы">
+      <a href="#top" data-i18n="nav_plan"></a>
+      <a href="#mapSec" data-i18n="nav_map"></a>
+      <a href="#events" data-i18n="nav_events"></a>
+      <a href="#music" data-i18n="nav_music"></a>
+      <a href="#recipes" data-i18n="nav_recipes"></a>
+      <a href="#partners" data-i18n="nav_partners"></a>
+    </nav>
+    <div class="tools">
+      <div class="seg" role="group" aria-label="Язык / Тіл / Language">
+        <button data-lang="ru">RU</button><button data-lang="kz">KZ</button><button data-lang="en">EN</button>
+      </div>
+      <button class="iconbtn" id="themeBtn" aria-label="Тема">🌙</button>
+    </div>
+  </div>
+</header>
+
+<main id="top">
+<section class="hero">
+  <div class="wrap hero-grid">
+    <div>
+      <h1><span data-i18n="hero_title"></span><span class="city" data-i18n="hero_city"></span></h1>
+      <p class="sub" data-i18n="hero_sub"></p>
+      <svg class="sunmark" viewBox="0 0 200 200" aria-hidden="true">
+        <g class="rays" stroke="#FFC93C" stroke-width="10" stroke-linecap="round">
+          <line x1="100" y1="8" x2="100" y2="34"/><line x1="100" y1="166" x2="100" y2="192"/>
+          <line x1="8" y1="100" x2="34" y2="100"/><line x1="166" y1="100" x2="192" y2="100"/>
+          <line x1="35" y1="35" x2="53" y2="53"/><line x1="147" y1="147" x2="165" y2="165"/>
+          <line x1="165" y1="35" x2="147" y2="53"/><line x1="53" y1="147" x2="35" y2="165"/>
+        </g>
+        <circle cx="100" cy="100" r="52" fill="url(#lg)"/>
+        <circle cx="84" cy="92" r="6" fill="#2E2A3B"/><circle cx="116" cy="92" r="6" fill="#2E2A3B"/>
+        <path d="M78 110Q100 132 122 110" fill="none" stroke="#2E2A3B" stroke-width="6" stroke-linecap="round"/>
+        <circle cx="72" cy="108" r="6" fill="#FF7A59" opacity=".5"/><circle cx="128" cy="108" r="6" fill="#FF7A59" opacity=".5"/>
+      </svg>
+    </div>
+
+    <div class="panel" id="scanner">
+      <div class="step">
+        <h3><span class="n">1</span><span data-i18n="step1"></span></h3>
+        <div class="row">
+          <button class="chip" data-quick="today" data-i18n="today"></button>
+          <button class="chip" data-quick="tomorrow" data-i18n="tomorrow"></button>
+          <button class="chip" data-quick="weekend" data-i18n="weekend"></button>
+          <input type="date" id="dateIn" aria-label="Дата">
+          <span class="wx" id="wx" hidden></span>
+        </div>
+      </div>
+      <div class="step">
+        <h3><span class="n">2</span><span data-i18n="step2"></span></h3>
+        <div class="fmts">
+          <button class="fmt" data-fmt="solo"><span>🙋</span><em data-i18n="fmt_solo" style="font-style:normal"></em></button>
+          <button class="fmt" data-fmt="pair"><span>💑</span><em data-i18n="fmt_pair" style="font-style:normal"></em></button>
+          <button class="fmt" data-fmt="group"><span>👯</span><em data-i18n="fmt_group" style="font-style:normal"></em></button>
+          <button class="fmt" data-fmt="family"><span>👨‍👩‍👧</span><em data-i18n="fmt_family" style="font-style:normal"></em></button>
+        </div>
+        <div class="extra" id="fmtExtra"></div>
+      </div>
+      <div class="step">
+        <h3><span class="n">3</span><span data-i18n="step3"></span></h3>
+        <div id="cats"></div>
+      </div>
+      <details class="filters">
+        <summary data-i18n="filters"></summary>
+        <div class="fgrid">
+          <label><span data-i18n="budget"></span><input type="number" id="budgetIn" min="0" step="1000" data-i18n-ph="budget_ph"></label>
+          <label><span data-i18n="tod"></span>
+            <select id="todIn"><option value="all" data-i18n="tod_all"></option><option value="morning" data-i18n="tod_morning"></option><option value="day" data-i18n="tod_day"></option><option value="evening" data-i18n="tod_evening"></option></select>
+          </label>
+          <label><span data-i18n="city"></span>
+            <select id="cityIn"><option value="all" data-i18n="city_all"></option><option value="Павлодар">Павлодар</option><option value="Экибастуз">Экибастуз</option><option value="Аксу">Аксу</option><option value="Баянаул">Баянаул</option></select>
+          </label>
+          <label class="check"><input type="checkbox" id="onlineIn"><span data-i18n="online_only"></span></label>
+        </div>
+      </details>
+      <button class="scan" id="scanBtn" data-i18n="scan_btn"></button>
+    </div>
+  </div>
+</section>
+
+<section id="results" aria-live="polite"><div class="wrap" id="resWrap"></div></section>
+
+<section id="mapSec">
+  <div class="wrap">
+    <h2 data-i18n="map_title"></h2>
+    <p class="sub" data-i18n="map_sub"></p>
+    <div class="map-tools" id="mapTools"></div>
+    <div id="map" role="region" aria-label="Карта"></div>
+  </div>
+</section>
+
+<section id="events" style="padding-top:20px">
+  <div class="wrap">
+    <h2 data-i18n="events_title"></h2>
+    <div class="events" id="evList"></div>
+  </div>
+</section>
+
+<section id="music" class="music">
+  <div class="wrap">
+    <h2 data-i18n="music_title"></h2>
+    <p class="sub" data-i18n="music_sub"></p>
+    <div class="mgrid">
+      <div>
+        <p class="lbl" data-i18n="mood"></p>
+        <div class="moods" id="moods"></div>
+        <p class="lbl" style="margin-top:20px" data-i18n="genre"></p>
+        <div class="row" id="genres"></div>
+      </div>
+      <div class="player" id="player"></div>
+    </div>
+  </div>
+</section>
+
+<section id="recipes">
+  <div class="wrap">
+    <h2 data-i18n="recipes_title"></h2>
+    <p class="sub" data-i18n="recipes_sub"></p>
+    <div class="row" id="rcats" style="margin-top:20px"></div>
+    <div class="rgrid" id="rgrid"></div>
+  </div>
+</section>
+
+<section id="partners" class="partners">
+  <div class="wrap">
+    <div class="box">
+      <div><h2 data-i18n="partners_title"></h2><p data-i18n="partners_sub"></p></div>
+      <div><button class="btn primary" id="partnerBtn" style="font-size:1.05rem;padding:14px 22px" data-i18n="partners_btn"></button></div>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <div><b style="font-family:var(--display);color:var(--ink)">GMS — GoodMoodScaner</b><br><span data-i18n="footer_demo"></span></div>
+    <div>© 2026 GMS, Павлодар</div>
+  </div>
+</footer>
+
+<button class="fab" id="fab"><span>🤖</span><span data-i18n="chat_title"></span></button>
+<div class="chat" id="chat" role="dialog" aria-label="AI">
+  <header><span data-i18n="chat_title"></span><button id="chatX" aria-label="close">✕</button></header>
+  <div class="msgs" id="msgs"></div>
+  <div class="quick" id="quick"></div>
+  <form id="chatForm">
+    <input type="text" id="chatIn" data-i18n-ph="chat_ph" autocomplete="off">
+    <button type="button" class="mic" id="micBtn" aria-label="voice" hidden>🎤</button>
+    <button type="submit" aria-label="send">➤</button>
+  </form>
+</div>
+
+<div class="modal" id="modal"><div class="mbox" role="dialog" aria-modal="true"><button class="iconbtn x" id="modalX" aria-label="close">✕</button><div id="mbody"></div></div></div>
+<div class="toast" id="toast"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script>
+/* ===================== i18n ===================== */
+const I18N={
+ru:{nav_plan:'План',nav_map:'Карта',nav_events:'Афиша',nav_music:'Музыка',nav_recipes:'Рецепты',nav_partners:'Партнёрам',
+hero_title:'Куда пойти на выходных?',hero_city:'Павлодар и Павлодарская область',
+hero_sub:'Выберите дату и компанию — GMS соберёт готовый план дня: время, цены, маршрут и бронь в один клик.',
+step1:'Когда?',step2:'С кем?',step3:'Что интересно?',today:'Сегодня',tomorrow:'Завтра',weekend:'Эти выходные',
+fmt_solo:'Один',fmt_pair:'Вдвоём',fmt_group:'Компания',fmt_family:'Семья с детьми',
+people:'Сколько человек',adults:'Взрослых',kids:'Детей',youngest:'Возраст младшего',
+cats_hint:'Выберите дату — покажем, что работает в этот день.',cats_note:'Ничего не выбрано — подберём из всех разделов.',
+filters:'Бюджет и другие фильтры',budget:'Бюджет на всех, ₸',budget_ph:'Без ограничений',tod:'Время суток',tod_all:'Весь день',tod_morning:'Утро',tod_day:'День',tod_evening:'Вечер',
+city:'Где',city_all:'Вся область',online_only:'Только с онлайн-бронью',scan_btn:'Сканировать настроение',scanning:'Сканируем город…',
+res_title:'Ваш план',variant:'Вариант',total:'Итого',within:'В рамках бюджета',over:'Выше бюджета на',nolimit:'Бюджет не ограничен',
+act_ticket:'Купить билет',act_table:'Забронировать стол',act_signup:'Записаться',act_free:'Вход свободный',act_replace:'Заменить',act_onmap:'На карте',
+book_all:'Забронировать всё',show_route:'Маршрут на карте',to_cal:'Добавить в календарь',print:'Сохранить PDF',copy:'Копировать',copied:'План скопирован',
+travel:'в пути',min:'мин',free:'Бесплатно',
+no_results:'На эту дату ничего не подошло. Выберите другие разделы, время суток или увеличьте бюджет.',
+map_title:'Карта досуга',map_sub:'Все заведения из GMS на одной карте. Нажмите на метку, чтобы увидеть цены и забронировать.',near_me:'Рядом со мной',all:'Все',
+events_title:'Популярное на этой неделе',add_plan:'Спланировать день',
+music_title:'Музыка для настроения',music_sub:'Выберите настроение и жанр — откроем подборку в вашем стриминге.',mood:'Настроение',genre:'Жанр',listen:'Слушать',
+recipes_title:'Проверенные рецепты',recipes_sub:'Только рецепты с рейтингом от 4,6 — для пикника, свидания или вечера дома.',
+servings:'Порций',ingredients:'Ингредиенты',method:'Приготовление',to_taste:'по вкусу',
+partners_title:'Вы владелец заведения?',partners_sub:'Добавьте события и расписание в GMS — вас найдут люди, которые прямо сейчас выбирают, куда пойти.',partners_btn:'Разместить заведение',
+footer_demo:'Демо-версия по ТЗ: заведения, цены и расписания вымышленные, оплата не списывается. Описания заведений — на русском.',
+chat_title:'ИИ-помощник',chat_ph:'Например: суббота вдвоём, бюджет 30 тысяч',
+chat_hello:'Привет! Я помогу спланировать досуг. Напишите, когда, с кем и на какой бюджет — например: «завтра с детьми 6 лет, кино и кафе, до 25 тысяч». Я опираюсь только на данные GMS и не придумываю места.',
+q1:'Суббота вдвоём до 30 тысяч',q2:'Завтра с детьми, кино и кафе',q3:'Сделай дешевле',q4:'Музыка для вечеринки',
+book_title:'Бронирование',name:'Имя',phone:'Телефон',qty:'Количество',time:'Время',pay:'Способ оплаты',kaspi:'Kaspi QR',card:'Банковская карта',wallet:'Apple Pay / Google Pay',payb:'Оплатить',
+own_badge:'Оплата на GMS',partner_badge:'Билеты у партнёра',free_badge:'Без брони',
+partner_note:'Билеты на это событие продаёт партнёр. Ваш сеанс:',go:'Перейти на',free_note:'Вход свободный — бронь не нужна. Добавьте в календарь, чтобы не забыть.',
+done:'Готово! Бронь подтверждена',code:'Код брони',sms:'Подтверждение отправлено по SMS (демо, оплата не списана).',close:'Закрыть',
+fill:'Укажите имя и телефон',replace_none:'На это время замены нет — попробуйте другой вариант плана.',replaced:'Пункт заменён',
+pick_date:'Сначала выберите дату',pl_for:'Плейлист к плану',partners_list:'Оформляются у партнёров:',own_list:'Оплата на GMS:',
+geo_err:'Не удалось определить местоположение',partner_ok:'Заявка принята (демо). Менеджер свяжется с вами.',
+weather_rain:'возможен дождь — в плане больше крытых мест',per_group:'за группу',age:'+',route_none:'Сначала составьте план'},
+kz:{nav_plan:'Жоспар',nav_map:'Карта',nav_events:'Афиша',nav_music:'Музыка',nav_recipes:'Рецепттер',nav_partners:'Серіктестерге',
+hero_title:'Демалыста қайда барамыз?',hero_city:'Павлодар және Павлодар облысы',
+hero_sub:'Күнді және кіммен демалатыныңызды таңдаңыз — GMS дайын күн жоспарын жасайды: уақыт, баға, бағыт және бір рет басып брондау.',
+step1:'Қашан?',step2:'Кіммен?',step3:'Не қызық?',today:'Бүгін',tomorrow:'Ертең',weekend:'Осы демалыс',
+fmt_solo:'Жалғыз',fmt_pair:'Екеуміз',fmt_group:'Достармен',fmt_family:'Балалармен',
+people:'Неше адам',adults:'Ересектер',kids:'Балалар',youngest:'Кішісінің жасы',
+cats_hint:'Күнді таңдаңыз — сол күні не ашық екенін көрсетеміз.',cats_note:'Ештеңе таңдалмаса — барлық бөлімнен іріктейміз.',
+filters:'Бюджет және басқа сүзгілер',budget:'Барлығына бюджет, ₸',budget_ph:'Шектеусіз',tod:'Тәулік уақыты',tod_all:'Күні бойы',tod_morning:'Таңертең',tod_day:'Күндіз',tod_evening:'Кешке',
+city:'Қай жерде',city_all:'Бүкіл облыс',online_only:'Тек онлайн брондаумен',scan_btn:'Көңіл-күйді сканерлеу',scanning:'Қаланы сканерлеп жатырмыз…',
+res_title:'Сіздің жоспарыңыз',variant:'Нұсқа',total:'Барлығы',within:'Бюджет шегінде',over:'Бюджеттен асады:',nolimit:'Бюджет шектелмеген',
+act_ticket:'Билет сатып алу',act_table:'Үстел брондау',act_signup:'Жазылу',act_free:'Кіру тегін',act_replace:'Ауыстыру',act_onmap:'Картада',
+book_all:'Барлығын брондау',show_route:'Картадағы бағыт',to_cal:'Күнтізбеге қосу',print:'PDF сақтау',copy:'Көшіру',copied:'Жоспар көшірілді',
+travel:'жолда',min:'мин',free:'Тегін',
+no_results:'Бұл күнге ештеңе сәйкес келмеді. Басқа бөлімдерді, уақытты таңдаңыз немесе бюджетті көбейтіңіз.',
+map_title:'Демалыс картасы',map_sub:'GMS-тегі барлық мекемелер бір картада. Баға мен брондауды көру үшін белгіні басыңыз.',near_me:'Маған жақын',all:'Барлығы',
+events_title:'Осы аптаның танымалдары',add_plan:'Күнді жоспарлау',
+music_title:'Көңіл-күйге арналған музыка',music_sub:'Көңіл-күй мен жанрды таңдаңыз — стримингте іріктеме ашамыз.',mood:'Көңіл-күй',genre:'Жанр',listen:'Тыңдау',
+recipes_title:'Тексерілген рецепттер',recipes_sub:'Тек 4,6 және одан жоғары рейтингті рецепттер — пикникке, кездесуге немесе үйдегі кешке.',
+servings:'Порция',ingredients:'Ингредиенттер',method:'Дайындау',to_taste:'дәміне қарай',
+partners_title:'Сіз мекеме иесісіз бе?',partners_sub:'GMS-ке іс-шаралар мен кестені қосыңыз — қазір қайда баруды таңдап жатқан адамдар сізді табады.',partners_btn:'Мекемені орналастыру',
+footer_demo:'ТТ бойынша демо-нұсқа: мекемелер, бағалар мен кестелер ойдан алынған, төлем алынбайды. Мекеме сипаттамалары орыс тілінде.',
+chat_title:'ЖИ-көмекші',chat_ph:'Мысалы: сенбі, екеуміз, бюджет 30 мың',
+chat_hello:'Сәлем! Демалысты жоспарлауға көмектесемін. Қашан, кіммен және қандай бюджетпен екенін жазыңыз — мысалы: «ертең балалармен, 6 жас, кино және кафе, 25 мыңға дейін». Мен тек GMS деректеріне сүйенемін.',
+q1:'Сенбі, екеуміз, 30 мың',q2:'Ертең балалармен, кино',q3:'Арзанырақ жаса',q4:'Кешке арналған музыка',
+book_title:'Брондау',name:'Аты',phone:'Телефон',qty:'Саны',time:'Уақыты',pay:'Төлем тәсілі',kaspi:'Kaspi QR',card:'Банк картасы',wallet:'Apple Pay / Google Pay',payb:'Төлеу',
+own_badge:'GMS арқылы төлем',partner_badge:'Билет серіктесте',free_badge:'Брондаусыз',
+partner_note:'Бұл іс-шараға билетті серіктес сатады. Сіздің сеансыңыз:',go:'Өту:',free_note:'Кіру тегін — брондау қажет емес. Ұмытпау үшін күнтізбеге қосыңыз.',
+done:'Дайын! Брондау расталды',code:'Брондау коды',sms:'Растау SMS арқылы жіберілді (демо, төлем алынбады).',close:'Жабу',
+fill:'Аты мен телефонды енгізіңіз',replace_none:'Бұл уақытқа ауыстыру жоқ — жоспардың басқа нұсқасын көріңіз.',replaced:'Тармақ ауыстырылды',
+pick_date:'Алдымен күнді таңдаңыз',pl_for:'Жоспарға плейлист',partners_list:'Серіктестерде рәсімделеді:',own_list:'GMS арқылы төлем:',
+geo_err:'Орналасқан жерді анықтау мүмкін болмады',partner_ok:'Өтінім қабылданды (демо). Менеджер хабарласады.',
+weather_rain:'жаңбыр жаууы мүмкін — жоспарда жабық орындар көбірек',per_group:'топқа',age:'+',route_none:'Алдымен жоспар құрыңыз'},
+en:{nav_plan:'Plan',nav_map:'Map',nav_events:'What\'s on',nav_music:'Music',nav_recipes:'Recipes',nav_partners:'For venues',
+hero_title:'What to do this weekend?',hero_city:'Pavlodar city and region',
+hero_sub:'Pick a date and who\'s coming — GMS builds a ready day plan: times, prices, route and one-click booking.',
+step1:'When?',step2:'Who\'s coming?',step3:'What are you into?',today:'Today',tomorrow:'Tomorrow',weekend:'This weekend',
+fmt_solo:'Solo',fmt_pair:'Couple',fmt_group:'Friends',fmt_family:'Family with kids',
+people:'How many people',adults:'Adults',kids:'Kids',youngest:'Youngest age',
+cats_hint:'Pick a date to see what\'s on that day.',cats_note:'Nothing selected — we\'ll pick from everything.',
+filters:'Budget and more filters',budget:'Total budget, ₸',budget_ph:'No limit',tod:'Time of day',tod_all:'All day',tod_morning:'Morning',tod_day:'Afternoon',tod_evening:'Evening',
+city:'Where',city_all:'Whole region',online_only:'Online booking only',scan_btn:'Scan my mood',scanning:'Scanning the city…',
+res_title:'Your plan',variant:'Option',total:'Total',within:'Within budget',over:'Over budget by',nolimit:'No budget limit',
+act_ticket:'Buy ticket',act_table:'Book a table',act_signup:'Sign up',act_free:'Free entry',act_replace:'Swap',act_onmap:'On map',
+book_all:'Book everything',show_route:'Route on map',to_cal:'Add to calendar',print:'Save PDF',copy:'Copy',copied:'Plan copied',
+travel:'travel',min:'min',free:'Free',
+no_results:'Nothing fits this date. Try other sections, another time of day or a bigger budget.',
+map_title:'Leisure map',map_sub:'Every GMS venue on one map. Tap a pin to see prices and book.',near_me:'Near me',all:'All',
+events_title:'Popular this week',add_plan:'Plan this day',
+music_title:'Music for your mood',music_sub:'Pick a mood and genre — we\'ll open a playlist in your streaming app.',mood:'Mood',genre:'Genre',listen:'Listen on',
+recipes_title:'Tried-and-true recipes',recipes_sub:'Only recipes rated 4.6+ — for a picnic, a date or a night in.',
+servings:'Servings',ingredients:'Ingredients',method:'Method',to_taste:'to taste',
+partners_title:'Own a venue?',partners_sub:'Add your events and schedule to GMS and reach people who are deciding where to go right now.',partners_btn:'List your venue',
+footer_demo:'Demo built from the spec: venues, prices and schedules are fictional, no payment is taken. Venue descriptions are in Russian.',
+chat_title:'AI assistant',chat_ph:'e.g. Saturday date, budget 30k',
+chat_hello:'Hi! I\'ll help you plan your free time. Tell me when, with whom and your budget — e.g. "tomorrow with kids aged 6, cinema and cafe, up to 25k". I only use GMS data and never make up places.',
+q1:'Saturday for two, 30k',q2:'Tomorrow with kids, cinema',q3:'Make it cheaper',q4:'Party music',
+book_title:'Booking',name:'Name',phone:'Phone',qty:'Quantity',time:'Time',pay:'Payment method',kaspi:'Kaspi QR',card:'Bank card',wallet:'Apple Pay / Google Pay',payb:'Pay',
+own_badge:'Pay on GMS',partner_badge:'Tickets via partner',free_badge:'No booking',
+partner_note:'Tickets for this event are sold by our partner. Your session:',go:'Go to',free_note:'Free entry — no booking needed. Add it to your calendar.',
+done:'Done! Booking confirmed',code:'Booking code',sms:'Confirmation sent by SMS (demo, no money charged).',close:'Close',
+fill:'Enter your name and phone',replace_none:'No swap fits this time slot — try another plan option.',replaced:'Item swapped',
+pick_date:'Pick a date first',pl_for:'Playlist for this plan',partners_list:'Booked with partners:',own_list:'Paid on GMS:',
+geo_err:'Couldn\'t get your location',partner_ok:'Request received (demo). A manager will contact you.',
+weather_rain:'rain likely — more indoor places in the plan',per_group:'per group',age:'+',route_none:'Build a plan first'}
+};
+let lang=(()=>{const n=(navigator.language||'ru').toLowerCase();return n.startsWith('kk')?'kz':n.startsWith('en')?'en':'ru'})();
+const t=k=>(I18N[lang]&&I18N[lang][k])||I18N.ru[k]||k;
+const LL=o=>o[lang]||o.ru;
+const LOC=()=>({ru:'ru-RU',kz:'kk-KZ',en:'en-GB'})[lang];
+
+/* ===================== Data (demo) ===================== */
+const CATS={
+ ent:{e:'🎳',c:'#FF7A59',ru:'Развлечения',kz:'Ойын-сауық',en:'Entertainment',act:'act_ticket'},
+ food:{e:'🍽️',c:'#F2A900',ru:'Рестораны и кафе',kz:'Мейрамханалар',en:'Food & drinks',act:'act_table'},
+ mk:{e:'🎨',c:'#A26BF0',ru:'Мастер-классы',kz:'Шеберлік сабақтары',en:'Workshops',act:'act_signup'},
+ exh:{e:'🖼️',c:'#3FA9DD',ru:'Выставки и музеи',kz:'Көрмелер',en:'Exhibitions',act:'act_ticket'},
+ theatre:{e:'🎭',c:'#E0548E',ru:'Театры',kz:'Театрлар',en:'Theatre',act:'act_ticket'},
+ cinema:{e:'🎬',c:'#4F6DF5',ru:'Кино',kz:'Кино',en:'Cinema',act:'act_ticket'},
+ concert:{e:'🎤',c:'#F0476A',ru:'Гастроли и концерты',kz:'Гастрольдер',en:'Concerts & tours',act:'act_ticket'},
+ sport:{e:'🏒',c:'#22A36A',ru:'Спортивные события',kz:'Спорт іс-шаралары',en:'Sports events',act:'act_ticket'},
+ gym:{e:'🏋️',c:'#159AA0',ru:'Спортзалы и фитнес',kz:'Спортзалдар',en:'Gyms & fitness',act:'act_signup'},
+ sale:{e:'🛍️',c:'#EE8A1E',ru:'Распродажи',kz:'Жеңілдіктер',en:'Sales',act:'act_free'},
+ spa:{e:'🧖',c:'#8C6FD6',ru:'Спа',kz:'Спа',en:'Spa',act:'act_signup'},
+ massage:{e:'💆',c:'#C36BB0',ru:'Массаж',kz:'Массаж',en:'Massage',act:'act_signup'},
+ nature:{e:'🌲',c:'#3E9B4F',ru:'Природа и загород',kz:'Табиғат',en:'Nature & outdoors',act:'act_signup'}
+};
+const ALL=[0,1,2,3,4,5,6],WKND=[5,6,0],SS=[6,0],TS=[2,3,4,5,6,0];
+const PARTNERS={ticketon:{n:'Ticketon',u:'https://ticketon.kz/'},kino:{n:'Kino.kz',u:'https://kino.kz/'}};
+const V=o=>Object.assign({unit:'person',age:0,days:ALL,city:'Павлодар',book:'own',rating:4.6,tags:'spgf'},o);
+const ITEMS=[
+ V({id:'e1',cat:'ent',name:'Батутный парк «Прыг-Скок»',place:'ТРЦ «Солнечный город», ул. Торайгырова',lat:52.2758,lng:76.9905,open:[10,22],dur:90,price:3000,tags:'pgf',desc:'Батуты, поролоновая яма и детская зона с аниматором по выходным.',rating:4.7}),
+ V({id:'e2',cat:'ent',name:'Боулинг-клуб «Страйк»',place:'ул. Естая',lat:52.2952,lng:76.9548,open:[12,23],dur:120,price:2500,tags:'spg',desc:'12 дорожек, бар и караоке-зал. Цена за человека за 2 часа.',rating:4.6}),
+ V({id:'e3',cat:'ent',name:'Квест «Тайна Иртыша»',place:'ул. Академика Сатпаева',lat:52.2831,lng:76.9476,times:['11:00','13:00','15:00','17:00','19:00','21:00'],dur:60,price:15000,unit:'group',age:10,tags:'pgf',desc:'Перформанс-квест для команды до 5 человек. Цена за группу.',rating:4.9}),
+ V({id:'e4',cat:'ent',name:'Детский центр «Карусель»',place:'ТРЦ «Сити Молл»',lat:52.2702,lng:76.9712,open:[10,21],dur:120,price:3500,tags:'f',desc:'Лабиринт, горки, игровая кухня и комната для малышей до 3 лет.',rating:4.5}),
+ V({id:'e5',cat:'ent',name:'Картинг «Форсаж»',place:'Северная промзона',lat:52.3048,lng:76.9302,open:[12,22],dur:45,price:6000,age:12,tags:'spg',desc:'Крытая трасса 400 м, хронометраж заездов, шлемы и комбинезоны.',rating:4.7}),
+ V({id:'e6',cat:'ent',name:'Развлекательный центр «Орбита»',place:'Экибастуз, ул. Мәшһүр Жүсіпа',city:'Экибастуз',lat:51.7302,lng:75.3205,open:[11,22],dur:90,price:3000,desc:'Игровые автоматы, VR-зона и семейное кафе.',rating:4.4}),
+ V({id:'f1',cat:'food',name:'Ресторан «Иртыш»',place:'Набережная, ул. Ак. Бектурова',lat:52.2893,lng:76.9578,open:[12,23],dur:90,price:7000,tags:'pgf',desc:'Казахская и европейская кухня, вид на реку, детское меню.',rating:4.8}),
+ V({id:'f2',cat:'food',name:'Семейное кафе «Баурсак»',place:'ул. Кутузова',lat:52.2801,lng:76.9752,open:[9,22],dur:60,price:4000,tags:'sgf',desc:'Домашняя кухня, детская комната и раскраски для малышей.',rating:4.7}),
+ V({id:'f3',cat:'food',name:'Кофейня «Утро»',place:'ул. Ленина',lat:52.2862,lng:76.9651,open:[8,21],dur:45,price:2500,tags:'sp',desc:'Спешелти-кофе, сырники и круассаны, тихая атмосфера.',rating:4.8}),
+ V({id:'f4',cat:'food',name:'Пиццерия «Сыр-бор»',place:'ул. Камзина',lat:52.2741,lng:76.9821,open:[11,23],dur:60,price:3500,tags:'sgf',desc:'Пицца из дровяной печи, мастер-класс для детей по воскресеньям.',rating:4.6}),
+ V({id:'f5',cat:'food',name:'Гастробар «Степь»',place:'ул. Сатпаева',lat:52.2918,lng:76.9618,open:[17,23],dur:120,price:9000,age:18,tags:'pg',desc:'Авторская кухня, живая музыка по пятницам и субботам.',rating:4.7}),
+ V({id:'f6',cat:'food',name:'Суши-бар «Сакура»',place:'ул. Толстого',lat:52.2812,lng:76.9528,open:[12,23],dur:75,price:6000,tags:'spg',desc:'Роллы, рамен и сеты для компании.',rating:4.5}),
+ V({id:'f7',cat:'food',name:'Кафе «Береке»',place:'Аксу, ул. Астана',city:'Аксу',lat:52.0418,lng:76.9203,open:[11,22],dur:60,price:3500,desc:'Национальная кухня, большие порции.',rating:4.5}),
+ V({id:'m1',cat:'mk',name:'Гончарный мастер-класс',place:'Мастерская «Глина»',lat:52.2845,lng:76.9602,times:['11:00','15:00'],days:[3,6,0],dur:120,price:8000,age:6,desc:'Работа на гончарном круге, изделие обжигают и отдают через неделю.',rating:4.9}),
+ V({id:'m2',cat:'mk',name:'Кулинарный мастер-класс «Бауырсақтар»',place:'Кулинарная студия «Дастархан»',lat:52.2778,lng:76.9688,times:['12:00','17:00'],days:WKND,dur:150,price:10000,age:12,tags:'spg',desc:'Готовим баурсаки, бешбармак и чай с шеф-поваром.',rating:4.8}),
+ V({id:'m3',cat:'mk',name:'Картина за вечер',place:'Арт-студия «Холст»',lat:52.2889,lng:76.9705,times:['18:30'],days:[4,5,6],dur:120,price:9000,age:16,tags:'spg',desc:'Пишем пейзаж акрилом с художником, все материалы включены.',rating:4.8}),
+ V({id:'m4',cat:'mk',name:'Робототехника для детей',place:'Студия «Юный инженер»',lat:52.2733,lng:76.9588,times:['11:00','14:00'],days:SS,dur:90,price:5000,age:7,tags:'f',desc:'Собираем и программируем робота, родители могут участвовать.',rating:4.7}),
+ V({id:'x1',cat:'exh',name:'Музей истории Прииртышья',place:'ул. Ленина',lat:52.2879,lng:76.9592,open:[10,18],days:TS,dur:60,price:1000,desc:'Археология, этнография и палеонтология региона.',rating:4.6}),
+ V({id:'x2',cat:'exh',name:'Выставка «Свет степи»',place:'Галерея «Арт-квартал»',lat:52.2869,lng:76.9662,open:[11,19],days:TS,dur:60,price:1500,tags:'spg',desc:'Современная живопись и фотография художников Павлодара.',rating:4.6}),
+ V({id:'x3',cat:'exh',name:'Интерактивная выставка «Динозавры»',place:'ТРЦ «Сити Молл»',lat:52.2704,lng:76.9718,open:[10,20],dur:60,price:3000,tags:'sf',desc:'Движущиеся фигуры динозавров в натуральную величину и раскопки для детей.',rating:4.5}),
+ V({id:'t1',cat:'theatre',name:'Спектакль «Женитьба» (Н. Гоголь)',place:'Городской драматический театр',lat:52.2858,lng:76.9564,times:['18:30'],days:WKND,dur:150,price:4000,age:12,tags:'spg',book:'partner',partner:'ticketon',desc:'Классическая комедия в современной постановке.',rating:4.8}),
+ V({id:'t2',cat:'theatre',name:'Кукольный спектакль «Три поросёнка»',place:'Театр кукол «Сказка»',lat:52.2795,lng:76.9632,times:['11:00','13:00'],days:SS,dur:60,price:2000,tags:'f',desc:'Весёлая сказка для детей от 3 лет с интерактивом в фойе.',rating:4.9}),
+ V({id:'t3',cat:'theatre',name:'Комедия «Той болады»',place:'Музыкально-драматический театр',lat:52.2902,lng:76.9688,times:['18:00'],days:[4,6],dur:140,price:3500,age:12,book:'partner',partner:'ticketon',desc:'Музыкальная комедия на казахском языке с синхронным переводом.',rating:4.7}),
+ V({id:'c1',cat:'cinema',name:'«Звёздный хвост» (анимация, 2D)',place:'Кинотеатр «Иртыш Синема»',lat:52.2756,lng:76.9898,times:['10:20','12:40','15:00','17:10'],dur:95,price:2000,tags:'sf',book:'partner',partner:'kino',desc:'Приключения лисёнка-астронавта. 6+.',rating:4.6}),
+ V({id:'c2',cat:'cinema',name:'«Последний рубеж» (боевик, 3D)',place:'Кинотеатр «Иртыш Синема»',lat:52.2756,lng:76.9898,times:['16:30','19:10','21:40'],dur:125,price:2800,age:16,tags:'spg',book:'partner',partner:'kino',desc:'Динамичный экшен, зал с Dolby Atmos. 16+.',rating:4.4}),
+ V({id:'c3',cat:'cinema',name:'«Сердце степи» (мелодрама)',place:'Кинотеатр «Звезда»',lat:52.2876,lng:76.9721,times:['14:00','18:20','20:50'],dur:110,price:2500,age:12,tags:'sp',book:'partner',partner:'kino',desc:'История любви на фоне Баянаула. Есть диваны для пар.',rating:4.7}),
+ V({id:'k1',cat:'concert',name:'Гастроли: джаз-оркестр «Blue Steppe»',place:'Дворец культуры',lat:52.2867,lng:76.9612,times:['19:00'],days:[6],dur:150,price:6000,tags:'spg',book:'partner',partner:'ticketon',desc:'Хиты джаза и свинга, специальная программа тура по Казахстану.',rating:4.8}),
+ V({id:'k2',cat:'concert',name:'Стендап-вечер «Смешно по-павлодарски»',place:'Арт-пространство «Лофт»',lat:52.2829,lng:76.9677,times:['20:00'],days:[5],dur:120,price:5000,age:18,tags:'spg',book:'partner',partner:'ticketon',desc:'Лучшие комики региона и приглашённый гость из Алматы.',rating:4.6}),
+ V({id:'k3',cat:'concert',name:'Шоу мыльных пузырей',place:'Дворец культуры, малый зал',lat:52.2867,lng:76.9612,times:['12:00'],days:[0],dur:60,price:3000,tags:'f',desc:'Гигантские пузыри, ребёнок внутри пузыря и фото на память.',rating:4.8}),
+ V({id:'s1',cat:'sport',name:'Хоккей: домашний матч чемпионата',place:'Ледовый дворец',lat:52.2702,lng:76.9541,times:['17:00'],days:[6],dur:150,price:2000,book:'partner',partner:'ticketon',desc:'Атмосфера трибун, фан-зона и семейный сектор.',rating:4.8}),
+ V({id:'s2',cat:'sport',name:'Футбол: домашний матч',place:'Центральный стадион',lat:52.2926,lng:76.9453,times:['16:00'],days:[0],months:[3,4,5,6,7,8,9,10],dur:120,price:1500,outdoor:1,book:'partner',partner:'ticketon',desc:'Матч чемпионата Казахстана, открытые трибуны.',rating:4.5}),
+ V({id:'s3',cat:'sport',name:'Городской забег «5 км у Иртыша»',place:'Старт у набережной',lat:52.2908,lng:76.9563,times:['10:00'],days:[0],dur:90,price:0,outdoor:1,desc:'Любительский забег, детская дистанция 1 км, медаль каждому финишёру.',rating:4.7}),
+ V({id:'g1',cat:'gym',name:'Фитнес-клуб «Энергия»: разовое посещение',place:'ул. Генерала Дюсенова',lat:52.2687,lng:76.9634,open:[7,23],dur:90,price:3000,age:16,tags:'spg',desc:'Тренажёрный зал, кардиозона, сауна. Первое пробное занятие бесплатно.',rating:4.6}),
+ V({id:'g2',cat:'gym',name:'Бассейн «Волна»',place:'ул. Чокина',lat:52.2961,lng:76.9739,open:[8,21],dur:60,price:2500,desc:'25-метровый бассейн и детская чаша, абонемент от 18 000 ₸.',rating:4.7}),
+ V({id:'g3',cat:'gym',name:'Йога в студии «Лотос»',place:'ул. Луначарского',lat:52.2833,lng:76.9558,times:['10:00','18:00','19:30'],dur:75,price:3500,age:14,tags:'sp',desc:'Хатха-йога для всех уровней, коврики выдаём.',rating:4.9}),
+ V({id:'g4',cat:'gym',name:'Кроссфит-тренировка «Сила»',place:'ул. Короленко',lat:52.2771,lng:76.9506,times:['11:00','19:00'],days:[1,2,3,4,5,6],dur:60,price:3000,age:16,tags:'sg',desc:'Групповая тренировка с тренером, до 12 человек.',rating:4.6}),
+ V({id:'sa1',cat:'sale',name:'Распродажа одежды до −50%',place:'ТРЦ «Солнечный город»',lat:52.2758,lng:76.9905,open:[10,22],days:WKND,dur:60,price:0,book:'free',desc:'Скидки в 20 магазинах одежды и обуви, только выходные.',rating:4.5}),
+ V({id:'sa2',cat:'sale',name:'Детские книги −30%',place:'Книжный магазин «Страница»',lat:52.2852,lng:76.9634,open:[10,20],dur:45,price:0,tags:'sf',book:'free',desc:'Скидка на детскую литературу и настольные игры.',rating:4.6}),
+ V({id:'sa3',cat:'sale',name:'Зимняя экипировка −25%',place:'Магазин «Старт»',lat:52.2722,lng:76.9792,open:[10,21],dur:45,price:0,book:'free',desc:'Лыжи, коньки и тёплая одежда для всей семьи.',rating:4.4}),
+ V({id:'sp1',cat:'spa',name:'Спа-программа «Для двоих»',place:'Спа-центр «Жасмин»',lat:52.2891,lng:76.9742,times:['11:00','14:00','17:00','20:00'],dur:120,price:12500,age:18,tags:'sp',desc:'Хаммам, ароматерапия, чайная церемония. Цена за человека.',rating:4.9}),
+ V({id:'sp2',cat:'spa',name:'Хаммам и бассейн «Шығыс»',place:'ул. Мира',lat:52.2742,lng:76.9446,open:[10,22],dur:120,price:7000,tags:'spg',desc:'Турецкая баня, бассейн с гидромассажем, зона отдыха.',rating:4.6}),
+ V({id:'ms1',cat:'massage',name:'Классический массаж спины',place:'Студия «Релакс»',lat:52.2814,lng:76.9709,times:['10:00','11:00','12:00','13:00','14:00','15:00','16:00','17:00','18:00','19:00'],dur:60,price:8000,age:16,tags:'sp',desc:'Снимает напряжение после рабочей недели.',rating:4.8}),
+ V({id:'ms2',cat:'massage',name:'Тайский массаж',place:'Салон «Сиам»',lat:52.2903,lng:76.9524,times:['11:00','13:00','15:00','17:00','19:00'],dur:90,price:12000,age:16,tags:'sp',desc:'Традиционный тайский массаж, есть парный кабинет.',rating:4.9}),
+ V({id:'n1',cat:'nature',name:'Экскурсия в Баянаул: озеро Жасыбай',place:'Баянаульский национальный парк',city:'Баянаул',lat:50.7942,lng:75.6983,times:['10:00'],days:SS,months:[5,6,7,8,9,10],dur:540,price:15000,outdoor:1,desc:'Трансфер из Павлодара, прогулка по скалам, обед у озера. Возвращение к 19:00.',rating:4.9}),
+ V({id:'n2',cat:'nature',name:'Прогулка по набережной Иртыша',place:'Набережная',lat:52.2918,lng:76.9548,open:[8,22],dur:60,price:0,outdoor:1,book:'free',desc:'Пешеходная зона, вид на реку и закат, прокат самокатов.',rating:4.7}),
+ V({id:'n3',cat:'nature',name:'Конная прогулка',place:'Загородный клуб «Тулпар»',lat:52.3412,lng:76.9101,times:['11:00','14:00','16:00'],days:SS,months:[4,5,6,7,8,9,10],dur:90,price:7000,age:7,outdoor:1,desc:'Прогулка с инструктором, пони для малышей, чай в юрте.',rating:4.8})
+];
+const BYID=Object.fromEntries(ITEMS.map(i=>[i.id,i]));
+const RCATS={breakfast:{ru:'Завтраки',kz:'Таңғы ас',en:'Breakfast'},picnic:{ru:'Для пикника',kz:'Пикникке',en:'Picnic'},date:{ru:'Романтический ужин',kz:'Романтикалық кешкі ас',en:'Date night'},kids:{ru:'Для детей',kz:'Балаларға',en:'For kids'},party:{ru:'Для компании',kz:'Достарға',en:'For a crowd'},national:{ru:'Национальная кухня',kz:'Ұлттық тағамдар',en:'Kazakh cuisine'},dessert:{ru:'Десерты',kz:'Десерттер',en:'Desserts'}};
+const RECIPES=[
+ {id:'r1',e:'🥞',title:'Сырники',cats:['breakfast','kids'],rating:4.9,votes:1240,time:30,base:4,ing:[[500,'г','творог 5%'],[1,'шт','яйцо'],[2,'ст. л.','сахар'],[4,'ст. л.','мука + для обваливания'],[1,'ч. л.','ванильный сахар'],[null,'','соль'],[3,'ст. л.','растительное масло']],steps:['Разомните творог вилкой до однородности.','Добавьте яйцо, сахар, ванильный сахар и щепотку соли, перемешайте.','Всыпьте муку и замесите мягкую массу.','Сформируйте 10–12 шайб толщиной 1,5 см и обваляйте в муке.','Жарьте на среднем огне под крышкой по 3–4 минуты с каждой стороны.','Подавайте со сметаной, ягодами или мёдом.']},
+ {id:'r2',e:'🍲',title:'Бешбармак',cats:['national','party'],rating:4.9,votes:980,time:180,base:6,ing:[[1.5,'кг','говядина или баранина на кости'],[2,'шт','репчатый лук'],[500,'г','мука'],[1,'шт','яйцо'],[200,'мл','вода для теста'],[2,'ч. л.','соль'],[2,'шт','лавровый лист'],[null,'','чёрный перец']],steps:['Залейте мясо 4 л холодной воды, доведите до кипения и снимите пену.','Варите на слабом огне 2,5 часа, за 30 минут до готовности посолите и добавьте лавровый лист.','Замесите крутое тесто из муки, яйца, воды и щепотки соли, оставьте под плёнкой на 30 минут.','Раскатайте тесто тонко (1–2 мм) и нарежьте ромбами по 6–7 см.','Лук нарежьте кольцами, залейте горячим бульоном с перцем — это тұздық.','Отварите тесто в бульоне порциями по 3–4 минуты.','Выложите тесто на блюдо, сверху нарезанное мясо и тұздық. Бульон (сорпу) подайте в пиалах.']},
+ {id:'r3',e:'🥯',title:'Баурсаки',cats:['national','party'],rating:4.8,votes:860,time:90,base:10,ing:[[1,'кг','мука'],[500,'мл','тёплое молоко'],[11,'г','сухие дрожжи'],[2,'ст. л.','сахар'],[1,'ч. л.','соль'],[50,'г','растопленное сливочное масло'],[1,'шт','яйцо'],[1,'л','масло для фритюра']],steps:['Растворите дрожжи и сахар в тёплом молоке, оставьте на 10 минут.','Добавьте яйцо, соль, масло и муку, замесите мягкое тесто.','Накройте и оставьте в тепле на 1 час.','Раскатайте пласт толщиной 1 см и нарежьте квадратами или кружками.','Жарьте во фритюре до золотистого цвета, переворачивая.','Выложите на бумажное полотенце. Подавайте к чаю.']},
+ {id:'r4',e:'🍢',title:'Куриные шашлычки в йогурте',cats:['picnic','party'],rating:4.7,votes:610,time:40,base:4,ing:[[1,'кг','филе куриного бедра'],[200,'г','натуральный йогурт'],[3,'зубч.','чеснок'],[1,'ч. л.','паприка'],[1,'ч. л.','зира'],[1.5,'ч. л.','соль'],[1,'шт','лимон'],[1,'шт','красный лук']],steps:['Нарежьте филе кусочками по 4 см.','Смешайте йогурт, измельчённый чеснок, специи, соль и сок половины лимона.','Замаринуйте курицу минимум на 2 часа (можно с вечера).','Нанижите на шпажки, чередуя с луком.','Жарьте на мангале 12–15 минут, переворачивая. Подавайте с лимоном.']},
+ {id:'r5',e:'🍝',title:'Паста с креветками в сливочном соусе',cats:['date'],rating:4.8,votes:720,time:25,base:2,ing:[[200,'г','спагетти'],[250,'г','очищенные креветки'],[200,'мл','сливки 20%'],[2,'зубч.','чеснок'],[40,'г','пармезан'],[20,'г','сливочное масло'],[null,'','соль и перец'],[null,'','петрушка']],steps:['Отварите спагетти в подсоленной воде на минуту меньше времени на упаковке.','Растопите масло, обжарьте чеснок 30 секунд.','Добавьте креветки и жарьте по 1 минуте с каждой стороны.','Влейте сливки, прогрейте 2 минуты, вмешайте тёртый пармезан.','Добавьте пасту и немного воды от варки, перемешайте. Посыпьте петрушкой.']},
+ {id:'r6',e:'🍪',title:'Овсяное печенье с шоколадом',cats:['kids','dessert'],rating:4.7,votes:540,time:35,base:20,ing:[[150,'г','овсяные хлопья'],[120,'г','мука'],[100,'г','мягкое сливочное масло'],[100,'г','сахар'],[1,'шт','яйцо'],[1,'ч. л.','разрыхлитель'],[80,'г','шоколад']],steps:['Разогрейте духовку до 180 °C.','Взбейте масло с сахаром, добавьте яйцо.','Вмешайте хлопья, муку, разрыхлитель и рубленый шоколад.','Выложите шарики теста на противень с пергаментом, слегка придавите.','Выпекайте 12–14 минут до золотистых краёв.']},
+ {id:'r7',e:'🍕',title:'Домашняя пицца',cats:['party','kids'],rating:4.8,votes:900,time:60,base:4,ing:[[400,'г','мука'],[250,'мл','тёплая вода'],[7,'г','сухие дрожжи'],[2,'ст. л.','оливковое масло'],[1,'ч. л.','соль'],[150,'г','томатный соус'],[250,'г','моцарелла'],[200,'г','ветчина или колбаски'],[150,'г','шампиньоны']],steps:['Замесите тесто из муки, воды, дрожжей, масла и соли, оставьте на 40 минут.','Разделите на 2 части и растяните в круги.','Смажьте соусом, выложите начинку и сыр.','Выпекайте при 230 °C 10–12 минут.']},
+ {id:'r8',e:'🍫',title:'Шоколадный фондан',cats:['date','dessert'],rating:4.6,votes:430,time:30,base:2,ing:[[100,'г','тёмный шоколад'],[50,'г','сливочное масло'],[2,'шт','яйца'],[40,'г','сахар'],[25,'г','мука']],steps:['Растопите шоколад с маслом на водяной бане.','Взбейте яйца с сахаром до светлой пены.','Соедините с шоколадом и вмешайте муку.','Разлейте по смазанным формочкам.','Выпекайте при 200 °C 8–10 минут — центр должен остаться жидким. Подавайте сразу.']}
+];
+const MOODS=[
+ {id:'energy',e:'⚡',q:'energetic',ru:'Энергия',kz:'Қуат',en:'Energy',d:{ru:'Бодрый темп для тренировки или сборов.',kz:'Жаттығуға немесе жиналуға арналған сергек ырғақ.',en:'Upbeat tempo for a workout or getting ready.'}},
+ {id:'romance',e:'💞',q:'romantic',ru:'Романтика',kz:'Романтика',en:'Romance',d:{ru:'Мягкий звук для свидания и ужина вдвоём.',kz:'Кездесу мен екеуара кешкі асқа жұмсақ әуен.',en:'Soft sound for a date or dinner for two.'}},
+ {id:'chill',e:'🌿',q:'chill relax',ru:'Расслабление',kz:'Демалу',en:'Chill',d:{ru:'Спокойный фон для отдыха и чтения.',kz:'Демалу мен кітап оқуға тыныш әуен.',en:'A calm background for resting and reading.'}},
+ {id:'party',e:'🎉',q:'party',ru:'Вечеринка',kz:'Той-думан',en:'Party',d:{ru:'Хиты, под которые танцует вся компания.',kz:'Бүкіл топ билейтін хиттер.',en:'Hits the whole crowd will dance to.'}},
+ {id:'kids',e:'🧸',q:'kids songs',ru:'Для детей',kz:'Балаларға',en:'For kids',d:{ru:'Весёлые песни для семейной поездки.',kz:'Отбасылық сапарға көңілді әндер.',en:'Fun songs for a family trip.'}},
+ {id:'road',e:'🚗',q:'road trip',ru:'В дорогу',kz:'Жолға',en:'Road trip',d:{ru:'Музыка для поездки за город, например в Баянаул.',kz:'Қала сыртына, мысалы Баянауылға сапарға музыка.',en:'Music for a drive out of town, say to Bayanaul.'}}
+];
+const GENRES=[['pop','Поп','Поп','Pop','pop'],['rock','Рок','Рок','Rock','rock'],['jazz','Джаз','Джаз','Jazz','jazz'],['electro','Электроника','Электроника','Electronic','electronic'],['classic','Классика','Классика','Classical','classical'],['hiphop','Хип-хоп','Хип-хоп','Hip-hop','hip hop'],['indie','Инди','Инди','Indie','indie'],['qazaq','Казахская эстрада','Қазақ эстрадасы','Kazakh pop','qazaq pop'],['lofi','Lo-fi','Lo-fi','Lo-fi','lofi'],['rnb','R&B','R&B','R&B','rnb']];
+
+/* ===================== State & helpers ===================== */
+const S={date:null,format:'pair',people:4,adults:2,kidsN:1,young:6,cats:new Set(),budget:0,tod:'all',city:'all',online:false,variants:[],vi:0,weather:{},mood:'energy',genre:'pop',rcat:'all'};
+const $=s=>document.querySelector(s);
+const pad=n=>String(n).padStart(2,'0');
+const toMin=s=>{const[a,b]=s.split(':').map(Number);return a*60+b};
+const hm=m=>pad(Math.floor(m/60))+':'+pad(m%60);
+const iso=d=>d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());
+const dObj=s=>new Date(s+'T12:00:00');
+const money=n=>n===0?t('free'):n.toLocaleString('ru-RU').replace(/,/g,' ')+' ₸';
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'})[c]);
+const catName=c=>LL(CATS[c]);
+function toast(msg){const el=$('#toast');el.textContent=msg;el.classList.add('show');clearTimeout(toast._t);toast._t=setTimeout(()=>el.classList.remove('show'),2600)}
+function rng(seed){return function(){seed|=0;seed=seed+0x6D2B79F5|0;let x=Math.imul(seed^seed>>>15,1|seed);x=x+Math.imul(x^x>>>7,61|x)^x;return((x^x>>>14)>>>0)/4294967296}}
+function km(a,b){const R=6371,r=Math.PI/180,dLa=(b.lat-a.lat)*r,dLo=(b.lng-a.lng)*r;const h=Math.sin(dLa/2)**2+Math.cos(a.lat*r)*Math.cos(b.lat*r)*Math.sin(dLo/2)**2;return 2*R*Math.asin(Math.sqrt(h))}
+function travel(a,b){if(!a||!b)return 0;if(a.cat==='nature'&&a.dur>300)return 0;const k=km(a,b);if(k<.3)return 5;return Math.ceil((k/30*60+8)/5)*5}
+function nextSat(){const d=new Date();const diff=(6-d.getDay()+7)%7;d.setDate(d.getDate()+diff);return iso(d)}
+function available(it,ds){const d=dObj(ds);return it.days.includes(d.getDay())&&(!it.months||it.months.includes(d.getMonth()+1))}
+function suits(it,fmt=S.format){const code={solo:'s',pair:'p',group:'g',family:'f'}[fmt];if(!it.tags.includes(code))return false;if(fmt==='family'&&it.age>S.young)return false;return true}
+function cityOk(it){return S.city==='all'||it.city===S.city}
+function qty(){return S.format==='solo'?1:S.format==='pair'?2:S.format==='group'?S.people:S.adults+S.kidsN}
+function cost(it,q=qty()){return it.unit==='group'?it.price:it.price*q}
+function slot(it,after,end){
+  if(it.times){const s=it.times.map(toMin).find(x=>x>=after);if(s===undefined||s+it.dur>end+75)return;return s}
+  let s=Math.max(after,it.open[0]*60);s=Math.ceil(s/10)*10;if(s+it.dur>Math.min(it.open[1]*60,end))return;return s;
+}
+function win(){const m={all:[600,1320],morning:[570,840],day:[720,1080],evening:[1020,1380]};let[a,b]=m[S.tod];if(S.format==='family')b=Math.min(b,1260);
+  if(S.date===iso(new Date())){const n=new Date();a=Math.max(a,Math.ceil((n.getHours()*60+n.getMinutes())/15)*15+30)}return[a,b]}
+function rainy(){const w=S.weather[S.date];return w&&w.p>=60}
+function pool(){return ITEMS.filter(it=>available(it,S.date)&&suits(it)&&cityOk(it)&&(!S.online||it.book!=='free')&&(!S.cats.size||S.cats.has(it.cat)))}
+
+/* ===================== Scenario engine ===================== */
+function build(seed){
+  const R=rng(seed),[a,b]=win(),P=pool(),plan=[],used=new Set(),catUsed={};let tm=a,prev=null,total=0,meal=false;
+  for(let k=0;k<6&&tm<b-30;k++){
+    const c=[];
+    for(const it of P){
+      if(used.has(it.id))continue;
+      if(it.dur>300&&plan.length)continue;
+      if(catUsed[it.cat]&&(it.cat==='food'?catUsed.food>=2:S.cats.size!==1))continue;
+      const tr=travel(prev,it),s=slot(it,tm+tr,b);if(s===undefined)continue;
+      const wait=s-(tm+tr);if(wait>100)continue;
+      const cs=cost(it);if(S.budget&&total+cs>S.budget)continue;
+      let sc=it.rating*1.2+R()*2.4-wait/25-tr/15;
+      sc+=catUsed[it.cat]?-4.5*catUsed[it.cat]:2;
+      if(it.cat==='food'){const mt=(s>=720&&s<=870)||(s>=1080&&s<=1230);sc+=meal?-9:(mt?4:-1.5)}
+      if(it.cat==='sale'&&!S.cats.has('sale'))sc-=1.5;
+      if(it.outdoor&&rainy())sc-=3;
+      if(it.dur>300)sc+=1;
+      c.push({it,s,tr,sc,cs});
+    }
+    if(!c.length)break;
+    c.sort((x,y)=>y.sc-x.sc);const top=c.slice(0,3);const pick=top[Math.floor(R()*R()*top.length)];
+    plan.push({id:pick.it.id,start:pick.s,end:pick.s+pick.it.dur,tr:plan.length?pick.tr:0,cost:pick.cs});
+    used.add(pick.it.id);catUsed[pick.it.cat]=(catUsed[pick.it.cat]||0)+1;if(pick.it.cat==='food')meal=true;
+    total+=pick.cs;tm=pick.s+pick.it.dur;prev=pick.it;
+  }
+  return plan;
+}
+function makeVariants(){const out=[],sig=new Set(),base=Date.now()%100000;for(let i=0;i<12&&out.length<3;i++){const p=build(base+i*7919);if(!p.length)continue;const s=p.map(x=>x.id).join();if(sig.has(s))continue;sig.add(s);out.push(p)}return out}
+const planTotal=p=>p.reduce((s,x)=>s+x.cost,0);
+function swap(idx){
+  const p=S.variants[S.vi],cur=p[idx],[a,b]=win();const prevIt=idx?BYID[p[idx-1].id]:null,prevEnd=idx?p[idx-1].end:a,next=p[idx+1],nextIt=next?BYID[next.id]:null;
+  const inPlan=new Set(p.map(x=>x.id)),tot=planTotal(p)-cur.cost;
+  const c=pool().filter(it=>!inPlan.has(it.id)&&it.dur<=300).map(it=>{const tr=travel(prevIt,it),s=slot(it,prevEnd+tr,next?next.start:b);if(s===undefined)return null;const e=s+it.dur;if(next&&e+travel(it,nextIt)>next.start)return null;const cs=cost(it);if(S.budget&&tot+cs>S.budget)return null;return{it,s,tr,cs}}).filter(Boolean);
+  if(!c.length){toast(t('replace_none'));return}
+  c.sort((x,y)=>(x.it.cat===BYID[cur.id].cat?1:0)-(y.it.cat===BYID[cur.id].cat?1:0)||Math.random()-.5);
+  const n=c[0];p[idx]={id:n.it.id,start:n.s,end:n.s+n.it.dur,tr:idx?n.tr:0,cost:n.cs};
+  if(next)next.tr=travel(n.it,nextIt);
+  renderResults();toast(t('replaced'));
+}
+/* ===================== Hero controls ===================== */
+function setDate(ds){S.date=ds;$('#dateIn').value=ds;
+  document.querySelectorAll('[data-quick]').forEach(b=>{const v=b.dataset.quick==='today'?iso(new Date()):b.dataset.quick==='tomorrow'?iso(new Date(Date.now()+864e5)):nextSat();b.setAttribute('aria-pressed',v===ds)});
+  renderWx();renderCats()}
+function renderWx(){const el=$('#wx'),w=S.weather[S.date];if(!w){el.hidden=true;return}el.hidden=false;el.textContent=`${w.i} ${w.hi>0?'+':''}${w.hi}° · ☔ ${w.p}%`}
+function setFormat(f){S.format=f;document.querySelectorAll('[data-fmt]').forEach(b=>b.setAttribute('aria-pressed',b.dataset.fmt===f));renderExtra();renderCats()}
+function renderExtra(){const e=$('#fmtExtra');
+  if(S.format==='group')e.innerHTML=`<label>${t('people')}<input type="number" min="2" max="30" value="${S.people}" data-k="people"></label>`;
+  else if(S.format==='family')e.innerHTML=`<label>${t('adults')}<input type="number" min="1" max="6" value="${S.adults}" data-k="adults"></label><label>${t('kids')}<input type="number" min="1" max="6" value="${S.kidsN}" data-k="kidsN"></label><label>${t('youngest')}<input type="number" min="0" max="17" value="${S.young}" data-k="young"></label>`;
+  else e.innerHTML='';
+  e.querySelectorAll('input').forEach(i=>i.addEventListener('change',()=>{S[i.dataset.k]=Math.max(+i.min,Math.min(+i.max,+i.value||+i.min));i.value=S[i.dataset.k];renderCats()}))}
+function renderCats(){const box=$('#cats');
+  if(!S.date){box.innerHTML=`<p class="hint">${t('cats_hint')}</p>`;return}
+  let h='<div class="row">';
+  for(const c in CATS){const n=ITEMS.filter(it=>it.cat===c&&available(it,S.date)&&suits(it)&&cityOk(it)).length;if(!n)S.cats.delete(c);
+    h+=`<button class="chip" data-cat="${c}" aria-pressed="${S.cats.has(c)}" ${n?'':'disabled'}>${CATS[c].e} ${catName(c)} <span class="cnt">${n}</span></button>`}
+  box.innerHTML=h+`</div><p class="hint" style="margin-top:10px">${S.cats.size?'':t('cats_note')}</p>`;
+  box.querySelectorAll('[data-cat]').forEach(b=>b.onclick=()=>{const c=b.dataset.cat;S.cats.has(c)?S.cats.delete(c):S.cats.add(c);renderCats()})}
+function readFilters(){S.budget=+$('#budgetIn').value||0;S.tod=$('#todIn').value;S.city=$('#cityIn').value;S.online=$('#onlineIn').checked}
+function scan(scroll=true){
+  if(!S.date){toast(t('pick_date'));return false}
+  readFilters();const btn=$('#scanBtn');btn.classList.add('busy');btn.textContent=t('scanning');
+  return new Promise(res=>setTimeout(()=>{S.variants=makeVariants();S.vi=0;btn.classList.remove('busy');btn.textContent=t('scan_btn');renderResults();
+    if(scroll)$('#results').scrollIntoView({behavior:'smooth'});res(true)},800));
+}
+
+/* ===================== Results ===================== */
+function actLabel(it){if(it.book==='free')return t('act_free');return t(CATS[it.cat].act)}
+function badge(it){return it.book==='own'?`<span class="badge">${t('own_badge')}</span>`:it.book==='partner'?`<span class="badge partner">${t('partner_badge')}: ${PARTNERS[it.partner].n}</span>`:`<span class="badge">${t('free_badge')}</span>`}
+function fmtSummary(){const f=t('fmt_'+S.format);if(S.format==='group')return `${f}, ${S.people}`;if(S.format==='family')return `${f}: ${S.adults} + ${S.kidsN}`;return f}
+const KZ_W=['жексенбі','дүйсенбі','сейсенбі','сәрсенбі','бейсенбі','жұма','сенбі'],KZ_M=['қаңтар','ақпан','наурыз','сәуір','мамыр','маусым','шілде','тамыз','қыркүйек','қазан','қараша','желтоқсан'];
+function dateLabel(ds,short){const d=dObj(ds);if(lang==='kz')return short?`${KZ_W[d.getDay()].slice(0,3)}, ${d.getDate()} ${KZ_M[d.getMonth()].slice(0,3)}`:`${d.getDate()} ${KZ_M[d.getMonth()]}, ${KZ_W[d.getDay()]}`;return d.toLocaleDateString(LOC(),short?{weekday:'short',day:'numeric',month:'short'}:{weekday:'long',day:'numeric',month:'long'})}
+function suggestedMood(p){if(p.some(x=>BYID[x.id].cat==='nature'))return'road';return{solo:'energy',pair:'romance',group:'party',family:'kids'}[S.format]}
+function renderResults(){
+  const sec=$('#results'),w=$('#resWrap');sec.classList.add('show');
+  const wx=S.weather[S.date];
+  let h=`<div class="res-head"><h2>${t('res_title')}: ${dateLabel(S.date)}<small>${fmtSummary()}${wx?` · ${wx.i} ${wx.hi}°`:''}${rainy()?' — '+t('weather_rain'):''}</small></h2>`;
+  if(S.variants.length>1)h+=`<div class="vtabs">${S.variants.map((_,i)=>`<button class="chip" data-v="${i}" aria-pressed="${i===S.vi}">${t('variant')} ${i+1}</button>`).join('')}</div>`;
+  h+='</div>';
+  if(!S.variants.length){w.innerHTML=h+`<div class="empty">🔎 ${t('no_results')}</div>`;bindRes();return}
+  const p=S.variants[S.vi],q=qty(),tot=planTotal(p);
+  h+='<div class="res-grid"><ol class="timeline">';
+  p.forEach((x,i)=>{const it=BYID[x.id],c=CATS[it.cat];
+    const pr=it.price===0?t('free'):it.unit==='group'?`${money(it.price)} ${t('per_group')}`:q>1?`${money(it.price)} × ${q} = ${money(x.cost)}`:money(x.cost);
+    h+=`<li class="tl-item" style="--c:${c.c}"><div class="tl-time"><b>${hm(x.start)}</b><span>${hm(x.end)}</span></div><div class="tl-body">
+      ${x.tr?`<div class="tl-travel">🚕 ≈ ${x.tr} ${t('min')} ${t('travel')}</div>`:''}
+      <h4>${c.e} ${esc(it.name)}${it.age?` <span class="badge">${it.age}${t('age')}</span>`:''}</h4>
+      <p class="tl-place">📍 ${esc(it.place)}${it.city!=='Павлодар'?', '+it.city:''}</p>
+      <p class="tl-desc">${esc(it.desc)}</p>
+      <div class="tl-meta"><span class="price">${pr}</span>${badge(it)}<span class="stars">★ ${it.rating}</span></div>
+      <div class="tl-actions"><button class="btn primary" data-book="${i}">${actLabel(it)}</button><button class="btn" data-swap="${i}">🔄 ${t('act_replace')}</button><button class="btn" data-show="${it.id}">🗺️ ${t('act_onmap')}</button></div>
+    </div></li>`});
+  h+='</ol>';
+  const bud=S.budget?(tot<=S.budget?`<p class="bud ok">✓ ${t('within')} (${money(S.budget)})</p>`:`<p class="bud over">${t('over')} ${money(tot-S.budget)}</p>`):`<p class="bud">${t('nolimit')}</p>`;
+  const m=MOODS.find(m=>m.id===suggestedMood(p));const mq=encodeURIComponent(m.q+' playlist');
+  h+=`<aside class="summary"><div>${t('total')}</div><div class="tot">${money(tot)}</div>${bud}
+    <div class="acts"><button class="btn primary" id="bookAll">🎟️ ${t('book_all')}</button><button class="btn mint" id="routeBtn">🗺️ ${t('show_route')}</button><button class="btn" id="icsBtn">📅 ${t('to_cal')}</button><button class="btn" id="pdfBtn">📄 ${t('print')}</button>
+    <div class="sharebar"><a class="btn" target="_blank" rel="noopener" href="https://wa.me/?text=${encodeURIComponent(planText())}">WhatsApp</a><a class="btn" target="_blank" rel="noopener" href="https://t.me/share/url?url=${encodeURIComponent('GMS')}&text=${encodeURIComponent(planText())}">Telegram</a><button class="btn" id="copyBtn">${t('copy')}</button></div></div>
+    <div class="pl"><b>🎧 ${t('pl_for')}: ${m.e} ${LL(m)}</b><div class="row"><a class="btn" target="_blank" rel="noopener" href="https://music.yandex.kz/search?text=${mq}">Яндекс Музыка</a><a class="btn" target="_blank" rel="noopener" href="https://open.spotify.com/search/${mq}">Spotify</a></div></div>
+  </aside></div>`;
+  w.innerHTML=h;bindRes();
+}
+function bindRes(){
+  document.querySelectorAll('[data-v]').forEach(b=>b.onclick=()=>{S.vi=+b.dataset.v;renderResults()});
+  document.querySelectorAll('[data-book]').forEach(b=>b.onclick=()=>{const x=S.variants[S.vi][+b.dataset.book];openBooking(BYID[x.id],x.start)});
+  document.querySelectorAll('[data-swap]').forEach(b=>b.onclick=()=>swap(+b.dataset.swap));
+  document.querySelectorAll('[data-show]').forEach(b=>b.onclick=()=>showOnMap(b.dataset.show));
+  const on=(id,f)=>{const e=$(id);if(e)e.onclick=f};
+  on('#bookAll',bookAll);on('#routeBtn',showRoute);on('#icsBtn',downloadIcs);on('#pdfBtn',()=>window.print());
+  on('#copyBtn',()=>{navigator.clipboard?navigator.clipboard.writeText(planText()).then(()=>toast(t('copied'))):toast(t('copied'))});
+}
+function planText(){const p=S.variants[S.vi]||[];return `GMS — ${dateLabel(S.date)}\n`+p.map(x=>{const it=BYID[x.id];return `${hm(x.start)}–${hm(x.end)} ${it.name}, ${it.place} (${money(x.cost)})`}).join('\n')+`\n${t('total')}: ${money(planTotal(p))}`}
+function downloadIcs(){const p=S.variants[S.vi];if(!p)return;const d=S.date.replace(/-/g,''),st=new Date().toISOString().replace(/[-:]/g,'').split('.')[0]+'Z';
+  const ev=p.map((x,i)=>{const it=BYID[x.id];const e=Math.min(x.end,1439);return ['BEGIN:VEVENT',`UID:gms-${d}-${i}-${it.id}@gms`,`DTSTAMP:${st}`,`DTSTART:${d}T${hm(x.start).replace(':','')}00`,`DTEND:${d}T${hm(e).replace(':','')}00`,`SUMMARY:${it.name}`,`LOCATION:${it.place}, ${it.city}`,`DESCRIPTION:${it.desc}`,'END:VEVENT'].join('\r\n')});
+  const txt=['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//GMS GoodMoodScaner//RU',...ev,'END:VCALENDAR'].join('\r\n');
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([txt],{type:'text/calendar'}));a.download=`gms-${S.date}.ics`;document.body.appendChild(a);a.click();a.remove()}
+
+/* ===================== Booking ===================== */
+function openModal(html){$('#mbody').innerHTML=html;$('#modal').classList.add('open');setTimeout(()=>{const f=$('#mbody input');f&&f.focus()},50)}
+function closeModal(){$('#modal').classList.remove('open')}
+function openBooking(it,start){
+  const time=start!=null?hm(start):(it.times?it.times[0]:hm(it.open[0]*60));const ds=S.date||iso(new Date());
+  let h=`<h3>${CATS[it.cat].e} ${esc(it.name)}</h3><p class="tl-place">📍 ${esc(it.place)} — ${dateLabel(ds)}, ${time}</p>`;
+  if(it.book==='partner'){const pt=PARTNERS[it.partner];h+=`<p>${t('partner_note')} <b>${time}</b>, ${money(it.price)}.</p><a class="btn primary" target="_blank" rel="noopener" href="${pt.u}">${t('go')} ${pt.n} ↗</a>`;openModal(h);return}
+  if(it.book==='free'||it.price===0){h+=`<p>${t('free_note')}</p>`;openModal(h);return}
+  const q=it.unit==='group'?1:qty();
+  h+=`<div class="form"><label>${t('qty')}<input type="number" id="bq" min="1" max="30" value="${q}" ${it.unit==='group'?'disabled':''}></label>
+   <label>${t('name')}<input type="text" id="bn" autocomplete="name"></label><label>${t('phone')}<input type="tel" id="bp" placeholder="+7 7__ ___ __ __" autocomplete="tel"></label>
+   <div><p class="lbl" style="margin:4px 0 8px">${t('pay')}</p><div class="pays"><label><input type="radio" name="pm" checked> 🟥 ${t('kaspi')}</label><label><input type="radio" name="pm"> 💳 ${t('card')}</label><label><input type="radio" name="pm">  ${t('wallet')}</label></div></div>
+   <button class="btn primary" id="payBtn" style="justify-content:center;padding:14px">${t('payb')} <span id="bsum">${money(cost(it,q))}</span></button></div>`;
+  openModal(h);
+  $('#bq').oninput=()=>{$('#bsum').textContent=money(cost(it,Math.max(1,+$('#bq').value||1)))};
+  $('#payBtn').onclick=()=>{if(!$('#bn').value.trim()||$('#bp').value.replace(/\D/g,'').length<10){toast(t('fill'));return}confirmBooked()}
+}
+function confirmBooked(){const code='GMS-'+Math.random().toString(36).slice(2,7).toUpperCase();$('#mbody').innerHTML=`<div class="okbox"><div class="big">🎉</div><h3>${t('done')}</h3><p>${t('code')}</p><code>${code}</code><p class="hint">${t('sms')}</p><button class="btn primary" onclick="closeModal()">${t('close')}</button></div>`}
+function bookAll(){const p=S.variants[S.vi];const own=p.filter(x=>BYID[x.id].book==='own'&&x.cost>0),par=p.filter(x=>BYID[x.id].book==='partner');
+  let h=`<h3>🎟️ ${t('book_all')}</h3>`;
+  if(own.length){h+=`<p class="lbl">${t('own_list')}</p><ul class="ing">${own.map(x=>`<li>${hm(x.start)} ${esc(BYID[x.id].name)} — <b>${money(x.cost)}</b></li>`).join('')}</ul>
+   <div class="form"><label>${t('name')}<input type="text" id="bn"></label><label>${t('phone')}<input type="tel" id="bp" placeholder="+7 7__ ___ __ __"></label><button class="btn primary" id="payAll" style="justify-content:center;padding:14px">${t('payb')} ${money(own.reduce((s,x)=>s+x.cost,0))} · Kaspi QR</button></div>`}
+  if(par.length)h+=`<p class="lbl" style="margin-top:18px">${t('partners_list')}</p>${par.map(x=>{const it=BYID[x.id],pt=PARTNERS[it.partner];return `<p>${hm(x.start)} ${esc(it.name)} — <a class="btn" target="_blank" rel="noopener" href="${pt.u}">${pt.n} ↗</a></p>`}).join('')}`;
+  openModal(h);const pa=$('#payAll');if(pa)pa.onclick=()=>{if(!$('#bn').value.trim()||$('#bp').value.replace(/\D/g,'').length<10){toast(t('fill'));return}confirmBooked()}}
+
+/* ===================== Map ===================== */
+let map,markers={},layer,routeLayer,mapCats=new Set(Object.keys(CATS));
+const CITY_VIEW={all:[[51.9,76.1],8],'Павлодар':[[52.2873,76.9674],13],'Экибастуз':[[51.7298,75.3266],13],'Аксу':[[52.0417,76.9200],13],'Баянаул':[[50.7930,75.6990],12]};
+function initMap(){
+  if(typeof L==='undefined'){$('#map').innerHTML='<div class="empty" style="height:100%;display:grid;place-items:center">Map unavailable offline</div>';return}
+  map=L.map('map',{scrollWheelZoom:false}).setView([52.2873,76.9674],13);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:18,attribution:'© OpenStreetMap'}).addTo(map);
+  layer=L.layerGroup().addTo(map);routeLayer=L.layerGroup().addTo(map);
+  ITEMS.forEach(it=>{const c=CATS[it.cat];const m=L.marker([it.lat,it.lng],{icon:L.divIcon({className:'',html:`<div class="pin" style="--c:${c.c};background:${c.c}"><span>${c.e}</span></div>`,iconSize:[34,34],iconAnchor:[17,34],popupAnchor:[0,-30]})});
+    m.bindPopup(()=>popupHtml(it));markers[it.id]=m});
+  drawMarkers();
+}
+function popupHtml(it){const sch=it.times?it.times.join(', '):`${pad(it.open[0])}:00–${pad(it.open[1])}:00`;
+  const div=document.createElement('div');div.className='pop';
+  div.innerHTML=`<b>${CATS[it.cat].e} ${esc(it.name)}</b><p>📍 ${esc(it.place)}</p><p>🕒 ${sch}</p><p>💰 ${it.price?money(it.price)+(it.unit==='group'?' '+t('per_group'):''):t('free')} · ★ ${it.rating}</p><button class="btn primary" style="margin-top:6px;padding:6px 12px">${actLabel(it)}</button>`;
+  div.querySelector('button').onclick=()=>openBooking(it,null);return div}
+function drawMarkers(){if(!map)return;layer.clearLayers();ITEMS.forEach(it=>{if(mapCats.has(it.cat))markers[it.id].addTo(layer)})}
+function renderMapTools(){const all=mapCats.size===Object.keys(CATS).length;
+  let h=`<button class="chip" data-mc="all" aria-pressed="${all}">${t('all')}</button>`;
+  for(const c in CATS)h+=`<button class="chip" data-mc="${c}" aria-pressed="${!all&&mapCats.has(c)}">${CATS[c].e} ${catName(c)}</button>`;
+  h+=`<select id="mapCity" aria-label="city">${Object.keys(CITY_VIEW).map(k=>`<option value="${k}">${k==='all'?t('city_all'):k}</option>`).join('')}</select><button class="btn mint" id="nearBtn">📍 ${t('near_me')}</button>`;
+  $('#mapTools').innerHTML=h;$('#mapCity').value=$('#mapCity').dataset.v||'Павлодар';
+  document.querySelectorAll('[data-mc]').forEach(b=>b.onclick=()=>{const c=b.dataset.mc;const allOn=mapCats.size===Object.keys(CATS).length;
+    if(c==='all')mapCats=new Set(Object.keys(CATS));else if(allOn)mapCats=new Set([c]);else{mapCats.has(c)?mapCats.delete(c):mapCats.add(c);if(!mapCats.size)mapCats=new Set(Object.keys(CATS))}
+    drawMarkers();renderMapTools()});
+  $('#mapCity').onchange=e=>{e.target.dataset.v=e.target.value;if(map){const[cn,z]=CITY_VIEW[e.target.value];map.setView(cn,z)}};
+  $('#nearBtn').onclick=()=>{if(!navigator.geolocation||!map){toast(t('geo_err'));return}navigator.geolocation.getCurrentPosition(p=>{map.setView([p.coords.latitude,p.coords.longitude],15);L.circleMarker([p.coords.latitude,p.coords.longitude],{radius:9,color:'#5BC0EB',fillOpacity:.9}).addTo(routeLayer)},()=>toast(t('geo_err')))};
+}
+function showOnMap(id){if(!map)return;const it=BYID[id];if(!mapCats.has(it.cat)){mapCats.add(it.cat);drawMarkers()}$('#mapSec').scrollIntoView({behavior:'smooth'});setTimeout(()=>{map.invalidateSize();map.setView([it.lat,it.lng],15);markers[id].openPopup()},450)}
+function showRoute(){const p=S.variants[S.vi];if(!p||!map){toast(t('route_none'));return}routeLayer.clearLayers();
+  const pts=p.map(x=>[BYID[x.id].lat,BYID[x.id].lng]);L.polyline(pts,{color:'#FF7A59',weight:5,dashArray:'10 10'}).addTo(routeLayer);
+  p.forEach((x,i)=>{const it=BYID[x.id];L.marker([it.lat,it.lng],{zIndexOffset:1000,icon:L.divIcon({className:'',html:`<div class="num">${i+1}</div>`,iconSize:[30,30],iconAnchor:[15,15]})}).bindPopup(`<b>${hm(x.start)}</b> ${esc(it.name)}`).addTo(routeLayer)});
+  $('#mapSec').scrollIntoView({behavior:'smooth'});setTimeout(()=>{map.invalidateSize();map.fitBounds(pts,{padding:[50,50],maxZoom:15})},450)}
+
+/* ===================== Events ===================== */
+function renderEvents(){const today=new Date(),out=[];
+  ITEMS.filter(it=>['theatre','concert','mk','sport','exh','nature'].includes(it.cat)&&it.times).forEach(it=>{for(let i=0;i<7;i++){const d=new Date(today);d.setDate(d.getDate()+i);const ds=iso(d);if(available(it,ds)){out.push({it,ds,i});break}}});
+  out.sort((a,b)=>a.i-b.i||b.it.rating-a.it.rating);
+  $('#evList').innerHTML=out.slice(0,12).map(({it,ds})=>`<article class="ev"><div class="em">${CATS[it.cat].e}</div><div class="when">${dateLabel(ds,true)}, ${it.times[0]}</div><h4>${esc(it.name)}</h4><p>${esc(it.place)}</p><p>${money(it.price)}${it.age?` · ${it.age}+`:''}</p><button class="btn primary" data-ev="${it.id}|${ds}">${t('add_plan')}</button></article>`).join('');
+  document.querySelectorAll('[data-ev]').forEach(b=>b.onclick=()=>{const[id,ds]=b.dataset.ev.split('|');const it=BYID[id];setDate(ds);
+    if(!suits(it)){const f=['pair','solo','group','family'].find(f=>suits(it,f));if(f)setFormat(f)}S.cats.add(it.cat);renderCats();scan()})}
+
+/* ===================== Music ===================== */
+function renderMusic(){
+  $('#moods').innerHTML=MOODS.map(m=>`<button class="mood" data-mood="${m.id}" aria-pressed="${S.mood===m.id}"><span>${m.e}</span>${LL(m)}</button>`).join('');
+  const gi={ru:1,kz:2,en:3}[lang];$('#genres').innerHTML=GENRES.map(g=>`<button class="chip" data-g="${g[0]}" aria-pressed="${S.genre===g[0]}">${g[gi]}</button>`).join('');
+  const m=MOODS.find(x=>x.id===S.mood),g=GENRES.find(x=>x[0]===S.genre),q=encodeURIComponent(`${g[4]} ${m.q} playlist`);
+  $('#player').innerHTML=`<div class="disc"></div><h3>${m.e} ${LL(m)} — ${g[gi]}</h3><p>${LL(m.d)}</p><p class="lbl" style="margin:8px 0 0">${t('listen')}:</p>
+   <div class="row"><a class="btn primary" target="_blank" rel="noopener" href="https://music.yandex.kz/search?text=${q}">Яндекс Музыка</a><a class="btn" target="_blank" rel="noopener" href="https://open.spotify.com/search/${q}">Spotify</a><a class="btn" target="_blank" rel="noopener" href="https://music.youtube.com/search?q=${q}">YouTube Music</a></div>`;
+  $('#player').classList.add('playing');
+  document.querySelectorAll('[data-mood]').forEach(b=>b.onclick=()=>{S.mood=b.dataset.mood;renderMusic()});
+  document.querySelectorAll('[data-g]').forEach(b=>b.onclick=()=>{S.genre=b.dataset.g;renderMusic()})}
+
+/* ===================== Recipes ===================== */
+function renderRecipes(){
+  $('#rcats').innerHTML=`<button class="chip" data-rc="all" aria-pressed="${S.rcat==='all'}">${t('all')}</button>`+Object.keys(RCATS).map(k=>`<button class="chip" data-rc="${k}" aria-pressed="${S.rcat===k}">${LL(RCATS[k])}</button>`).join('');
+  const list=RECIPES.filter(r=>S.rcat==='all'||r.cats.includes(S.rcat)).sort((a,b)=>b.rating-a.rating);
+  $('#rgrid').innerHTML=list.map(r=>`<button class="rc" data-r="${r.id}"><div class="pic">${r.e}</div><div class="in"><h4>${r.title}</h4><div class="meta"><span class="stars">★ ${r.rating}</span><span>(${r.votes})</span><span>⏱ ${r.time} ${t('min')}</span></div></div></button>`).join('');
+  document.querySelectorAll('[data-rc]').forEach(b=>b.onclick=()=>{S.rcat=b.dataset.rc;renderRecipes()});
+  document.querySelectorAll('[data-r]').forEach(b=>b.onclick=()=>openRecipe(b.dataset.r))}
+function fmtAmt(n,u){if(u==='шт'||u.startsWith('зубч'))return String(Math.max(1,Math.round(n)));if(n>=10)return String(Math.round(n/5)*5||Math.round(n));const r=Math.round(n*2)/2;return String(r||0.5).replace('.',',')}
+function openRecipe(id,sv){const r=RECIPES.find(x=>x.id===id);sv=sv||r.base;const k=sv/r.base;
+  openModal(`<h3>${r.e} ${r.title}</h3><div class="meta" style="display:flex;gap:12px;font-weight:700;color:var(--muted)"><span class="stars">★ ${r.rating}</span><span>⏱ ${r.time} ${t('min')}</span></div>
+   <div class="srv"><b>${t('servings')}:</b><button id="sm" aria-label="minus">−</button><b>${sv}</b><button id="sp" aria-label="plus">+</button></div>
+   <h4 style="margin-top:10px">${t('ingredients')}</h4><ul class="ing">${r.ing.map(([a,u,n])=>`<li>${n} — ${a==null?t('to_taste'):fmtAmt(a*k,u)+' '+u}</li>`).join('')}</ul>
+   <h4 style="margin-top:14px">${t('method')}</h4><ol class="steps">${r.steps.map(s=>`<li>${s}</li>`).join('')}</ol>`);
+  $('#sm').onclick=()=>sv>1&&openRecipe(id,sv-1);$('#sp').onclick=()=>openRecipe(id,sv+1)}
+/* ===================== AI assistant (demo, rule-based on GMS data) ===================== */
+const KW={cinema:/кино|фильм|сеанс|cinema|movie|film/,food:/ресторан|кафе|поесть|покуш|ужин|обед|еда|кофе|тамақ|мейрамхана|restaurant|cafe|food|dinner|lunch/,theatre:/театр|спектакл|theat|play\b/,spa:/спа|spa|хаммам|баня/,massage:/массаж|massage/,
+ sport:/хоккей|футбол|матч|забег|hockey|football|match|спорттық/,gym:/спортзал|фитнес|тренаж|йог|бассейн|кроссфит|gym|fitness|yoga|pool/,exh:/выставк|музе|галере|көрме|exhibit|museum|gallery/,mk:/мастер|класс|workshop|шебер/,concert:/концерт|гастрол|джаз|стендап|concert|stand.?up|gig/,
+ sale:/распрод|скидк|шопинг|акци|sale|shopping|жеңілдік/,nature:/природ|баянаул|загород|набережн|конн|лошад|nature|outdoor|horse|табиғат/,ent:/батут|боулинг|квест|картинг|развлеч|bowling|quest|karting|trampoline|ойын/};
+function addMsg(txt,who='bot'){const d=document.createElement('div');d.className='msg '+who;d.textContent=txt;$('#msgs').appendChild(d);$('#msgs').scrollTop=1e6}
+function parse(raw){const s=raw.toLowerCase(),r={};
+  if(/вдво|девушк|парн|жен[ао]й|муж|свидан|пара|екеу|date|couple|girlfriend|boyfriend|wife|husband/.test(s))r.format='pair';
+  if(/друз|компан|коллег|достар|friends|group|team/.test(s))r.format='group';
+  if(/дет|реб[её]н|сын|доч|семь|бала|отбасы|kid|child|family|son|daughter/.test(s))r.format='family';
+  if(/один|одна|сам\b|в одиночку|жалғыз|alone|solo|by myself/.test(s))r.format='solo';
+  const bm=s.match(/(\d[\d\s]*)\s*(тыс|тысяч|к\b|k\b|мың)/)||s.match(/(?:бюджет|до|budget|up to|дейін)\s*(\d[\d\s]{2,})/);
+  if(bm){let n=parseInt(bm[1].replace(/\s/g,''));if(bm[2])n*=1000;if(n>=500)r.budget=n}
+  const pm=s.match(/(\d+)\s*(чел|человек|друз|адам|people|friends)/);if(pm)r.people=+pm[1];
+  const am=s.match(/(\d+)\s*(лет|год|жас|years?|y\.?o)/);if(am)r.young=+am[1];
+  if(/сегодня|бүгін|today|tonight/.test(s))r.date=iso(new Date());
+  else if(/послезавтра/.test(s))r.date=iso(new Date(Date.now()+1728e5));
+  else if(/завтра|ертең|tomorrow/.test(s))r.date=iso(new Date(Date.now()+864e5));
+  else{const dn=[[/воскрес|жексенбі|sunday/,0],[/понедел|дүйсенбі|monday/,1],[/вторник|сейсенбі|tuesday/,2],[/сред[ау]|сәрсенбі|wednesday/,3],[/четверг|бейсенбі|thursday/,4],[/пятниц|жұма|friday/,5],[/суббот|сенбі|saturday|выходн|weekend|демалыс/,6]];
+    for(const[re,w]of dn)if(re.test(s)){const d=new Date();d.setDate(d.getDate()+((w-d.getDay()+7)%7));r.date=iso(d);break}}
+  if(/утр|таң|morning/.test(s))r.tod='morning';else if(/вечер|кеш|evening|night/.test(s))r.tod='evening';else if(/днём|днем|күндіз|afternoon/.test(s))r.tod='day';
+  if(/экибастуз|ekibastuz/.test(s))r.city='Экибастуз';else if(/аксу|aksu/.test(s))r.city='Аксу';else if(/баянаул|bayanaul/.test(s))r.city='all';
+  r.cats=Object.keys(KW).filter(k=>KW[k].test(s));
+  return r}
+function venueAnswer(s){for(const it of ITEMS){const m=it.name.match(/«(.+?)»/);const key=(m?m[1]:it.name).toLowerCase();const pm=it.place.match(/«(.+?)»/);const key2=pm?pm[1].toLowerCase():null;
+  if(s.includes(key)||(key2&&s.includes(key2))){const sch=it.times?it.times.join(', '):`${pad(it.open[0])}:00–${pad(it.open[1])}:00`;
+   return `${CATS[it.cat].e} ${it.name}\n📍 ${it.place}, ${it.city}\n🕒 ${sch}\n💰 ${it.price?money(it.price):t('free')}${it.age?`\n🔞 ${it.age}+`:''}\n${it.desc}`}}return null}
+async function handle(raw){addMsg(raw,'me');const s=raw.toLowerCase();
+  if(/музык|песн|плейлист|music|playlist|song|әуен|ән/.test(s)){const mm=[['party',/вечерин|party|той|танц/],['romance',/романт|romantic|свидан/],['chill',/расслаб|спокой|chill|relax/],['kids',/дет|kid|бала/],['road',/дорог|road|жол/],['energy',/энерг|бодр|energy|спорт|workout/]].find(x=>x[1].test(s));
+    if(mm){S.mood=mm[0]}renderMusic();$('#music').scrollIntoView({behavior:'smooth'});
+    addMsg(LL({ru:`Открыл раздел музыки: настроение «${LL(MOODS.find(m=>m.id===S.mood))}». Выберите жанр и сервис.`,kz:`Музыка бөлімін аштым: «${LL(MOODS.find(m=>m.id===S.mood))}». Жанр мен сервисті таңдаңыз.`,en:`Opened music: "${LL(MOODS.find(m=>m.id===S.mood))}" mood. Pick a genre and a service.`}));return}
+  if(/рецепт|приготов|recipe|cook|тағам/.test(s)){S.rcat=/пикник|picnic/.test(s)?'picnic':/романт|свидан|date/.test(s)?'date':/дет|kid|бала/.test(s)?'kids':/национ|казах|ұлттық|kazakh/.test(s)?'national':'all';renderRecipes();$('#recipes').scrollIntoView({behavior:'smooth'});
+    addMsg(LL({ru:'Подобрал рецепты с рейтингом от 4,6 — откройте карточку, чтобы пересчитать порции.',kz:'4,6-дан жоғары рейтингті рецепттерді таңдадым.',en:'Here are recipes rated 4.6+. Open one to scale the servings.'}));return}
+  if(/погод|ауа рай|weather|дожд|rain/.test(s)){const ds=S.date||nextSat(),w=S.weather[ds];
+    addMsg(w?LL({ru:`${dateLabel(ds)}: ${w.i} до ${w.hi}°, вероятность осадков ${w.p}%.${w.p>=60?' Советую крытые развлечения.':''}`,kz:`${dateLabel(ds)}: ${w.i} ${w.hi}°, жауын ықтималдығы ${w.p}%.`,en:`${dateLabel(ds)}: ${w.i} up to ${w.hi}°, ${w.p}% chance of rain.`}):LL({ru:'Прогноз на эту дату пока недоступен.',kz:'Бұл күнге болжам әзірге жоқ.',en:'No forecast for that date yet.'}));return}
+  if(/дешевл|подешев|арзан|cheaper|less money/.test(s)&&S.variants.length){S.budget=Math.max(1000,Math.round(planTotal(S.variants[S.vi])*.7/1000)*1000);$('#budgetIn').value=S.budget;await scan(false);reportPlan();return}
+  const va=venueAnswer(s);const r=parse(raw);const actionable=r.format||r.date||r.budget||r.cats.length||r.tod;
+  if(va&&!actionable){addMsg(va);return}
+  if(!actionable){addMsg(LL({ru:'Уточните, пожалуйста: когда и с кем вы хотите отдохнуть? Можно добавить бюджет и интересы — кино, спа, театр, спортзал, природа.',kz:'Нақтылаңызшы: қашан және кіммен демалғыңыз келеді? Бюджет пен қызығушылықты қосуға болады.',en:'When and with whom would you like to go out? You can add a budget and interests — cinema, spa, theatre, gym, nature.'}));return}
+  if(r.format)setFormat(r.format);if(r.people)S.people=r.people;if(r.young!=null){S.young=r.young;if(!r.format)setFormat('family')}
+  renderExtra();if(r.budget)$('#budgetIn').value=r.budget;if(r.tod)$('#todIn').value=r.tod;if(r.city)$('#cityIn').value=r.city;
+  setDate(r.date||S.date||nextSat());if(r.cats.length){S.cats=new Set(r.cats);renderCats()}
+  await scan(false);reportPlan();if(window.innerWidth>700)$('#results').scrollIntoView({behavior:'smooth'})}
+function reportPlan(){if(!S.variants.length){addMsg(t('no_results'));return}const p=S.variants[S.vi];
+  addMsg(LL({ru:'Готово! План на ',kz:'Дайын! Жоспар: ',en:'Done! Plan for '})+dateLabel(S.date)+':\n'+p.map(x=>`${hm(x.start)} ${CATS[BYID[x.id].cat].e} ${BYID[x.id].name}`).join('\n')+`\n${t('total')}: ${money(planTotal(p))}`+LL({ru:'\nМожно написать «сделай дешевле» или заменить пункт кнопкой 🔄.',kz:'\n«Арзанырақ жаса» деп жазуға болады.',en:'\nSay "make it cheaper" or swap an item with 🔄.'}))}
+function renderQuick(){$('#quick').innerHTML=['q1','q2','q3','q4'].map(k=>`<button class="chip" data-q="${k}">${t(k)}</button>`).join('');document.querySelectorAll('[data-q]').forEach(b=>b.onclick=()=>handle(t(b.dataset.q)))}
+
+/* ===================== i18n apply, weather, init ===================== */
+function applyI18n(){document.documentElement.lang=lang==='kz'?'kk':lang;
+  document.querySelectorAll('[data-i18n]').forEach(el=>el.textContent=t(el.dataset.i18n));
+  document.querySelectorAll('[data-i18n-ph]').forEach(el=>el.placeholder=t(el.dataset.i18nPh));
+  document.querySelectorAll('[data-lang]').forEach(b=>b.setAttribute('aria-pressed',b.dataset.lang===lang));
+  renderExtra();renderCats();renderMapTools();renderEvents();renderMusic();renderRecipes();renderQuick();
+  if(S.variants.length||$('#results').classList.contains('show'))renderResults();
+  const ms=$('#msgs');if(ms.children.length<=1){ms.innerHTML='';addMsg(t('chat_hello'))}}
+async function loadWeather(){try{const r=await fetch('https://api.open-meteo.com/v1/forecast?latitude=52.29&longitude=76.97&daily=weathercode,temperature_2m_max,precipitation_probability_max&timezone=auto&forecast_days=16');const j=await r.json();
+  const ic=c=>c===0?'☀️':c<=2?'🌤️':c===3?'☁️':c<=48?'🌫️':c<=67?'🌧️':c<=77?'❄️':c<=82?'🌦️':c<=86?'🌨️':'⛈️';
+  j.daily.time.forEach((d,i)=>S.weather[d]={i:ic(j.daily.weathercode[i]),hi:Math.round(j.daily.temperature_2m_max[i]),p:j.daily.precipitation_probability_max[i]??0});renderWx()}catch(e){}}
+function init(){
+  $('#dateIn').min=iso(new Date());
+  document.querySelectorAll('[data-quick]').forEach(b=>b.onclick=()=>setDate(b.dataset.quick==='today'?iso(new Date()):b.dataset.quick==='tomorrow'?iso(new Date(Date.now()+864e5)):nextSat()));
+  $('#dateIn').onchange=e=>e.target.value&&setDate(e.target.value);
+  document.querySelectorAll('[data-fmt]').forEach(b=>b.onclick=()=>setFormat(b.dataset.fmt));
+  $('#cityIn').onchange=()=>{S.city=$('#cityIn').value;renderCats()};
+  $('#scanBtn').onclick=()=>scan();
+  document.querySelectorAll('[data-lang]').forEach(b=>b.onclick=()=>{lang=b.dataset.lang;applyI18n()});
+  $('#themeBtn').onclick=()=>{const r=document.documentElement,dark=r.dataset.theme?r.dataset.theme==='dark':matchMedia('(prefers-color-scheme: dark)').matches;r.dataset.theme=dark?'light':'dark';$('#themeBtn').textContent=dark?'🌙':'☀️'};
+  $('#modalX').onclick=closeModal;$('#modal').onclick=e=>{if(e.target.id==='modal')closeModal()};document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal()});
+  $('#fab').onclick=()=>{$('#chat').classList.toggle('open');if($('#chat').classList.contains('open'))$('#chatIn').focus()};$('#chatX').onclick=()=>$('#chat').classList.remove('open');
+  $('#chatForm').onsubmit=e=>{e.preventDefault();const v=$('#chatIn').value.trim();if(v){$('#chatIn').value='';handle(v)}};
+  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;if(SR){$('#micBtn').hidden=false;$('#micBtn').onclick=()=>{const r=new SR();r.lang={ru:'ru-RU',kz:'kk-KZ',en:'en-US'}[lang];r.onresult=e=>handle(e.results[0][0].transcript);r.start()}}
+  $('#partnerBtn').onclick=()=>openModal(`<h3>🏪 ${t('partners_btn')}</h3><div class="form"><label>${t('name')}<input type="text" id="pn"></label><label>${t('phone')}<input type="tel" id="pp"></label><button class="btn primary" style="justify-content:center;padding:12px" onclick="this.closest('.mbox').querySelector('#mbody').innerHTML='<div class=okbox><div class=big>🤝</div><p>'+t('partner_ok')+'</p></div>'">${t('partners_btn')}</button></div>`);
+  setFormat('pair');initMap();applyI18n();loadWeather();
+}
+init();
+</script>
+</body>
+</html>
